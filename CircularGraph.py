@@ -93,7 +93,7 @@ class CircularGraph:
                 f"sec_label must be one of {VALID_SEC_LABEL_MODES}, got {sec_label!r}"
             )
 
-        edges_mat = self.mat
+        edges_mat = self.mat * self.mask
         n = len(edges_mat)
         labels_dict = dict(enumerate(self.labels)) if self.labels else {}
         secondary_labels = (
