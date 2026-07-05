@@ -42,6 +42,7 @@ class CircularGraph:
         self.labels = load_labels(labels)
         self.secondary_labels = load_secondary_labels(secondary_labels)
         self.color_palette = load_color_palette(color_palette)
+        self.mask = np.ones(self.mat.shape, dtype=bool)
 
         self._validate()
 
