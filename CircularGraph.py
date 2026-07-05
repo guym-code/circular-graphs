@@ -3,6 +3,7 @@ from I_O.edge_loader import load_edge_list_matrix_csv
 from I_O.edge_list2mat import edge_list_to_matrix
 
 import numpy as np
+import re
 
 class CircularGraph:
     def __init__(self, mat_path, mat_type='matrix', labels=None, secondary_labels=None, color_palette=None):
@@ -88,6 +89,20 @@ class CircularGraph:
             if not all(isinstance(v, str) for v in self.color_palette.values()):
                 raise TypeError("All color palette values must be strings.")
 
+            # Validate color format
+            invalid_colors = [
+                f"{region}: '{color}'"
+                for region, color in self.color_palette.items()
+                if not re.fullmatch(r"#[0-9A-Fa-f]{6}", color)
+            ]
+
+            if invalid_colors:
+                raise ValueError(
+                    "All colors must be valid hexadecimal colors of the form '#RRGGBB'.\n"
+                    "Invalid entries:\n"
+                    + "\n".join(invalid_colors)
+                )
+
             if self.secondary_labels is not None:
 
                 palette_regions = set(self.color_palette.keys())
@@ -116,3 +131,9 @@ class CircularGraph:
                         "Color palette does not match secondary labels.\n"
                         + "\n".join(msg)
                     )
+            
+            # A palette is meaningless without secondary labels
+            else:
+                raise ValueError(
+                    "A color palette was provided, but no secondary_labels were supplied."
+                )
