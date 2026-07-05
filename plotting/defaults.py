@@ -1,0 +1,34 @@
+"""Default parameter values for circular graph plotting"""
+
+from typing import Tuple
+
+LABEL: bool = False
+LABEL_FONT: str = "DejaVu Sans"
+LABEL_SIZE: int = 10
+
+SEC_LABEL: str = "Color"
+SEC_LABEL_FONT: str = "DejaVu Sans"
+SEC_LABEL_SIZE: int = 10
+
+EDGE_COLOR_METHOD: str = "Uniform"
+EDGE_COLOR_UNIFORM: str = "#000000"  # Black
+EDGE_COLOR_POSITIVE: str = "#ff0000"  # Red
+EDGE_COLOR_NEGATIVE: str = "#0000ff"  # Blue
+
+SAVE_FORMAT: str = "png"
+SAVE_DPI: int = 100
+SAVE_BACKGROUND: str = "#ffffff"  # White
+
+# Used only when a graph has no secondary_labels, so edge_color_method
+# 'Node'/'Nodes' still has a color to draw from.
+NODE_FALLBACK_COLORMAP: str = "hsv"
+
+NODE_RADIUS: float = 1.0
+# 0.0 = chords bow through the center; 1.0 = straight lines.
+EDGE_CURVATURE: float = 0.0
+EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 4.0)
+
+# Half-width/height of the (square) plot view, in data units. Used both
+# by finalize_axes and by arc-text width calculations, so the two stay
+# consistent regardless of call order.
+PLOT_EXTENT: float = 1.6
