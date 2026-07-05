@@ -27,10 +27,11 @@ class CircularGraph:
         labels=None,
         secondary_labels=None,
         color_palette=None,
+        subject_idx=0
     ):
         if mat_type == "edge_list":
             edge_index, edge_values = load_edge_list_matrix_csv(mat_path)
-            self.mat = edge_list_to_matrix(edge_values, edge_index)
+            self.mat = edge_list_to_matrix(edge_values, edge_index, subject_idx)
 
         elif mat_type == "matrix":
             self.mat = load_matrix(mat_path)
