@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def edge_list_to_matrix(edge_values, edge_index):
+def edge_list_to_matrix(edge_values, edge_index, subject_idx=0):
     """
     Convert edge-list representation to a symmetric connectivity matrix.
 
@@ -25,7 +25,7 @@ def edge_list_to_matrix(edge_values, edge_index):
 
     # If multiple subjects, take only first
     if edge_values.ndim == 2:
-        edge_values = edge_values[0]
+        edge_values = edge_values[subject_idx]
 
     if edge_values.ndim != 1:
         raise ValueError(f"Expected 1D edge values, got shape {edge_values.shape}")
