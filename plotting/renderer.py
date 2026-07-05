@@ -1,7 +1,7 @@
 """Low-level matplotlib drawing primitives for circular graphs.
 
 This is the only module that touches matplotlib drawing calls directly.
-Callers (graph_plot.py) are responsible for computing geometry
+Callers (CircularGraph.py) are responsible for computing geometry
 (layout.py) and colors (colors.py) beforehand.
 """
 
@@ -176,6 +176,7 @@ def draw_labels(
             va="center",
             fontsize=size,
             fontfamily=font,
+            color="black",
             zorder=4,
         )
 
@@ -255,6 +256,7 @@ def draw_arc_text(
     font: Optional[str] = None,
     size: float = 10,
     extent: float = defaults.PLOT_EXTENT,
+    color: str = "black",
 ) -> None:
     """Draw text curved along a circular arc, centered on `mid_angle`.
 
@@ -276,6 +278,7 @@ def draw_arc_text(
         size: Font size in points.
         extent: Half-width of the (square) view set by finalize_axes;
             must match the value finalize_axes will be called with.
+        color: Text color.
     """
     if not text:
         return
@@ -307,6 +310,7 @@ def draw_arc_text(
             va="center",
             fontsize=size,
             fontfamily=font,
+            color=color,
             zorder=4,
         )
 
@@ -316,6 +320,7 @@ def draw_group_brackets(
     fig: Figure,
     n: int,
     groups: Sequence[Group],
+    node_colors: Sequence[str],
     font: Optional[str] = None,
     size: float = 10,
     radius: float = defaults.NODE_RADIUS,
@@ -324,8 +329,10 @@ def draw_group_brackets(
     """Draw a bracket arc plus curved label over each secondary-label
     group.
 
-    The label sits just outside the bracket (at a slightly larger
-    radius), curving the same way as the bracket beneath it.
+    The bracket (arc + end ticks) and its label are both colored to
+    match the group's own color, i.e. the same color used for its
+    nodes. The label sits just outside the bracket (at a slightly
+    larger radius), curving the same way as the bracket beneath it.
 
     Args:
         ax: Axes to draw into.
@@ -334,6 +341,9 @@ def draw_group_brackets(
             angles).
         groups: (label, start_pos, end_pos) tuples, as returned by
             layout.detect_groups.
+        node_colors: Per-node colors, as returned by
+            colors.resolve_node_colors; the first node of each group is
+            used as that group's bracket color.
         font: Font family name for the group label, or None for default.
         size: Font size in points for the group label.
         radius: Node circle radius; the bracket is drawn just outside it.
@@ -344,18 +354,21 @@ def draw_group_brackets(
     text_radius = bracket_radius * 1.06
     half_gap = 0.4
     for label, start_pos, end_pos in groups:
+        group_color = node_colors[start_pos]
         a_start = _raw_angle(start_pos - half_gap, n)
         a_end = _raw_angle(end_pos + half_gap, n)
         arc_angles = np.linspace(a_start, a_end, 50)
         xs = bracket_radius * np.cos(arc_angles)
         ys = bracket_radius * np.sin(arc_angles)
-        ax.plot(xs, ys, color="black", lw=1.2, solid_capstyle="round", zorder=2)
+        ax.plot(xs, ys, color=group_color, lw=1.2, solid_capstyle="round", zorder=2)
         for a in (a_start, a_end):
             x0, y0 = bracket_radius * math.cos(a), bracket_radius * math.sin(a)
             x1, y1 = radius * 1.02 * math.cos(a), radius * 1.02 * math.sin(a)
-            ax.plot([x0, x1], [y0, y1], color="black", lw=1.2, zorder=2)
+            ax.plot([x0, x1], [y0, y1], color=group_color, lw=1.2, zorder=2)
         mid_angle = (a_start + a_end) / 2.0
-        draw_arc_text(ax, fig, label, mid_angle, text_radius, font, size, extent)
+        draw_arc_text(
+            ax, fig, label, mid_angle, text_radius, font, size, extent, color=group_color
+        )
 
 
 def draw_group_legend(
@@ -387,7 +400,11 @@ def draw_group_legend(
         return
     handles = [Patch(color=color, label=label) for label, color in seen.items()]
     legend_kwargs = dict(
-        loc="lower right", bbox_to_anchor=(1.3, -0.05), fontsize=size, frameon=False
+        loc="lower right",
+        bbox_to_anchor=(1.3, -0.05),
+        fontsize=size,
+        frameon=False,
+        labelcolor="black",
     )
     if font:
         legend_kwargs["prop"] = {"family": font, "size": size}
