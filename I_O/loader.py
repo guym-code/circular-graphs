@@ -6,11 +6,11 @@ from scipy.io import loadmat
 
 
 LABELS_DICT = {
-    "Schaefer 100": Path(r"Atlases\labels_scf_100.csv"),
-    "Schaefer 400": Path(r"Atlases\labels_scf_400.csv"),
-    "Schaefer 600": Path(r"Atlases\labels_scf_600.csv"),
-    "Schaefer 1000": Path(r"Atlases\labels_scf_1000.csv"),
-    "Multi-Modal Parcellation (MMP)": Path(r"Atlases\MMP_labels.csv"),
+    "Schaefer 100": Path(r"Atlases\\labels_scf_100.csv"),
+    "Schaefer 400": Path(r"Atlases\\labels_scf_400.csv"),
+    "Schaefer 600": Path(r"Atlases\\labels_scf_600.csv"),
+    "Schaefer 1000": Path(r"Atlases\\labels_scf_1000.csv"),
+    "Multi-Modal Parcellation (MMP)": Path(r"Atlases\\MMP_labels.csv"),
 }
 
 SECONDARY_LABELS_DICT = {
