@@ -59,26 +59,26 @@ class CircularGraph:
         radius: float = defaults.NODE_RADIUS,
     ) -> Figure:
         """Design and create the circular graph figure.
-
-        Builds node layout and colors, draws nodes/edges/labels/group annotations,
-        and stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can later be called afterwards.
+        Stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can later be called afterwards.
 
         Args:
-            label: If True, draw each node's label from self.labels next
-                to it.
-            label_font: Font family for node labels, or None for default.
+            label: If True, draw each node's label from self.labels next to it.
+            label_font: Font family for node labels, or None for default (taken from Matplotlib).
             label_size: Font size (points) for node labels.
-            sec_label: One of "Color", "Bracket", "ColorBracket", "False"
-                (or the boolean False, treated as "False").
-                "Color" colors nodes by secondary label and shows a legend
-                "Bracket" draws a bracket + curved label over each group.
-                "ColorBracket" does both (no legend needed).
-            sec_label_font: Font family for group labels/legend, or None for default.
+            sec_label: Determine the grouping method for the secondary label.
+                "Color": colors nodes by secondary label and shows a legend
+                "Bracket": draws a bracket + curved label over each group.
+                "ColorBracket": does both (no legend needed).
+            sec_label_font: Font family for group labels/legend, or None for default (taken from Matplotlib).
             sec_label_size: Font size (points) for group labels/legend.
-            edge_color_method: One of "Uniform", "PositiveNegative", "Node", "Nodes".
+            edge_color_method: Determine how to choose edge colors.
+                "Uniform": Same color for all edges (default - Black)
+                "PositiveNegative": Color is based on correlation direction (default - Pos=Red, Neg=Blue).
+                "Node": Color is based on the sec_label color of the lower-indexed node out of the two.
+                "Nodes": Color is a gradient between the two node sec_label colors.
             edge_color: Optional override color(s) for "Uniform" (a single color) or "PositiveNegative"
             (a dict/2-tuple of positive, negative). Ignored for "Node"/"Nodes".
-            radius: Radius of the node circle, 1 is the default.
+            radius: Radius of the node circle (default - 1).
 
         Returns:
             The created matplotlib Figure (also stored as self._fig).
