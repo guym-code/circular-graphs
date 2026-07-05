@@ -54,12 +54,12 @@ class CircularGraph:
         sec_label_size: float = defaults.SEC_LABEL_SIZE,
         edge_color_method: str = defaults.EDGE_COLOR_METHOD,
         edge_color: Optional[Union[ColorInput, PositiveNegativeInput]] = None,
+        radius: float = defaults.NODE_RADIUS,
     ) -> Figure:
         """Design and create the circular graph figure.
 
-        Builds node layout and colors, draws nodes/edges/labels/group
-        annotations, and stores the result on self (as `_fig`/`_ax`) so
-        that show()/savegraph() can later be called afterwards.
+        Builds node layout and colors, draws nodes/edges/labels/group annotations,
+        and stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can later be called afterwards.
 
         Args:
             label: If True, draw each node's label from self.labels next
@@ -67,18 +67,16 @@ class CircularGraph:
             label_font: Font family for node labels, or None for default.
             label_size: Font size (points) for node labels.
             sec_label: One of "Color", "Bracket", "ColorBracket", "False"
-                (or the boolean False, treated as "False"). "Color" colors
-                nodes by secondary label and shows a legend; "Bracket" draws
-                a bracket + curved label over each group; "ColorBracket"
-                does both (no legend needed).
-            sec_label_font: Font family for group labels/legend, or None for
-                default.
+                (or the boolean False, treated as "False").
+                "Color" colors nodes by secondary label and shows a legend
+                "Bracket" draws a bracket + curved label over each group.
+                "ColorBracket" does both (no legend needed).
+            sec_label_font: Font family for group labels/legend, or None for default.
             sec_label_size: Font size (points) for group labels/legend.
-            edge_color_method: One of "Uniform", "PositiveNegative", "Node",
-                "Nodes" (see colors.resolve_edge_color_pair).
-            edge_color: Optional override color(s) for "Uniform" (a single
-                color) or "PositiveNegative" (a dict/2-tuple of positive,
-                negative). Ignored for "Node"/"Nodes".
+            edge_color_method: One of "Uniform", "PositiveNegative", "Node", "Nodes".
+            edge_color: Optional override color(s) for "Uniform" (a single color) or "PositiveNegative"
+            (a dict/2-tuple of positive, negative). Ignored for "Node"/"Nodes".
+            radius: Radius of the node circle, 1 is the default.
 
         Returns:
             The created matplotlib Figure (also stored as self._fig).
@@ -101,7 +99,7 @@ class CircularGraph:
         )
         color_scheme = self.color_palette or {}
 
-        positions = layout.compute_node_positions(n, radius=defaults.NODE_RADIUS)
+        positions = layout.compute_node_positions(n, radius=radius)
         angles = layout.compute_node_angles(n)
         groups = (
             layout.detect_groups(list(range(n)), secondary_labels)
@@ -110,6 +108,10 @@ class CircularGraph:
         )
 
         node_colors = colors.resolve_node_colors(n, secondary_labels, color_scheme)
+
+        scale = radius / defaults.NODE_RADIUS
+        extent = defaults.PLOT_EXTENT * scale
+        figsize = (defaults.FIGSIZE[0] * scale, defaults.FIGSIZE[1] * scale)
 
         edges = []
         for i in range(n):
@@ -122,26 +124,34 @@ class CircularGraph:
                 )
                 edges.append((i, j, weight, color_a, color_b))
 
-        fig, ax = renderer.create_figure()
+        fig, ax = renderer.create_figure(figsize=figsize)
         renderer.draw_edges(ax, positions, edges)
         renderer.draw_nodes(ax, positions, node_colors)
 
         if label:
             node_labels = [labels_dict.get(i) for i in range(n)]
             renderer.draw_labels(
-                ax, angles, node_labels, font=label_font, size=label_size
+                ax, angles, node_labels, font=label_font, size=label_size, radius=radius
             )
 
         if sec_label in ("Bracket", "ColorBracket") and groups:
             renderer.draw_group_brackets(
-                ax, fig, n, groups, node_colors, font=sec_label_font, size=sec_label_size
+                ax,
+                fig,
+                n,
+                groups,
+                node_colors,
+                font=sec_label_font,
+                size=sec_label_size,
+                radius=radius,
+                extent=extent,
             )
         if sec_label == "Color" and groups:
             renderer.draw_group_legend(
                 ax, node_colors, groups, font=sec_label_font, size=sec_label_size
             )
 
-        renderer.finalize_axes(ax)
+        renderer.finalize_axes(ax, extent=extent)
 
         self._fig = fig
         self._ax = ax

@@ -26,7 +26,7 @@ Edge = Tuple[int, int, float, str, str]
 Group = Tuple[str, int, int]
 
 
-def create_figure(figsize: Tuple[float, float] = (8, 8)) -> Tuple[Figure, Axes]:
+def create_figure(figsize: Tuple[float, float] = defaults.FIGSIZE) -> Tuple[Figure, Axes]:
     """Create a blank white-background figure/axes pair to draw into.
 
     Args:
