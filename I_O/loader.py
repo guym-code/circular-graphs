@@ -4,6 +4,21 @@ import numpy as np
 import pandas as pd
 from scipy.io import loadmat
 
+labels_dict = {
+    "Schaefer 100": Path("Atlases\\labels_scf_100.csv"),
+    "Schaefer 400": Path("Atlases\\labels_scf_400.csv"),
+    "Schaefer 600": Path("Atlases\\labels_scf_600.csv"),
+    "Schaefer 1000": Path("Atlases\\labels_scf_1000.csv"),
+    "Multi-Modal Parcellation (MMP)": Path("Atlases\\MMP_labels.csv"),
+    }
+
+secondary_labels_dict = {
+    "Schaefer 100": Path("Atlases\\secondary_labels\\schaefer_100_yeo7_network_labels.csv"),
+    "Schaefer 400": Path("Atlases\\secondary_labels\\schaefer_400_yeo7_network_labels.csv"),
+    "Schaefer 600": Path("Atlases\\secondary_labels\\schaefer_600_yeo7_network_labels.csv"),
+    "Schaefer 1000": Path("Atlases\\secondary_labels\\schaefer_1000_yeo7_network_labels.csv"),
+    }
+
 def load_matrix(matrix, variable=None):
     """
     Load a connectivity matrix.
@@ -104,6 +119,9 @@ def load_labels(obj):
 
     if obj is None:
         return None
+    
+    if isinstance(obj, str) and obj in labels_dict:
+        obj = labels_dict[obj]
 
     if isinstance(obj, (list, tuple, np.ndarray)):
         arr = np.asarray(obj).squeeze()
@@ -179,6 +197,9 @@ def load_secondary_labels(obj):
 
     Same behavior as load_labels.
     """
+
+    if isinstance(obj, str) and obj in secondary_labels_dict:
+        obj = secondary_labels_dict[obj]
 
     return load_labels(obj)
 
