@@ -1,11 +1,11 @@
-from I_O.loader import load_matrix, load_labels, load_secondary_labels
+from I_O.loader import load_matrix, load_labels, load_secondary_labels, load_color_palette
 from I_O.edge_loader import load_edge_list_matrix_csv
 from I_O.edge_list2mat import edge_list_to_matrix
 
 import numpy as np
 
 class CircularGraph:
-    def __init__(self, mat_path, mat_type='matrix', labels=None, secondary_labels=None):
+    def __init__(self, mat_path, mat_type='matrix', labels=None, secondary_labels=None, color_palette=None):
 
         if mat_type == 'edge_list':
             edge_index, edge_values = load_edge_list_matrix_csv(mat_path)
@@ -19,6 +19,7 @@ class CircularGraph:
 
         self.labels = load_labels(labels)
         self.secondary_labels = load_secondary_labels(secondary_labels)
+        self.color_palette = load_color_palette(color_palette)
 
         self._validate()
 
@@ -74,3 +75,44 @@ class CircularGraph:
         # ---- optional symmetry check ----
         if not np.allclose(self.mat, self.mat.T):
             raise ValueError("Connectivity matrix must be symmetric.")
+        
+        # ---- color palette validation ----
+        if self.color_palette is not None:
+
+            if not isinstance(self.color_palette, dict):
+                raise TypeError("color_palette must be a dictionary.")
+
+            if not all(isinstance(k, str) for k in self.color_palette.keys()):
+                raise TypeError("All color palette keys must be strings.")
+
+            if not all(isinstance(v, str) for v in self.color_palette.values()):
+                raise TypeError("All color palette values must be strings.")
+
+            if self.secondary_labels is not None:
+
+                palette_regions = set(self.color_palette.keys())
+                secondary_regions = set(self.secondary_labels)
+
+                missing_in_palette = secondary_regions - palette_regions
+                extra_in_palette = palette_regions - secondary_regions
+
+                if missing_in_palette or extra_in_palette:
+
+                    msg = []
+
+                    if missing_in_palette:
+                        msg.append(
+                            "Missing colors for: "
+                            + ", ".join(sorted(missing_in_palette))
+                        )
+
+                    if extra_in_palette:
+                        msg.append(
+                            "Unused palette entries: "
+                            + ", ".join(sorted(extra_in_palette))
+                        )
+
+                    raise ValueError(
+                        "Color palette does not match secondary labels.\n"
+                        + "\n".join(msg)
+                    )
