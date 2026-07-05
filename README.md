@@ -6,6 +6,8 @@
 ## Product Requirements Shared Doc (you can edit) 
 https://docs.google.com/document/d/1a2ZQJTtFH3H57V8p0iG39yFw9OPO3pakU4-5SBe-X4o/edit?usp=sharing
 
+Shared Presentation:
+https://docs.google.com/presentation/d/1jaq3Cncm86KyL8Ov1DoASdZ6KH-fHWH5Bo7b2_KFSHM/edit?usp=sharing
 
 
 Many neuroscience studies visualize structural or functional connectivity using circular representations (connectograms or chord diagrams). Although these figures are common in publications and are frequently featured in high-impact journals, existing software often requires substantial programming expertise, extensive manual customization, or cumbersome configuration before publication-quality figures can be produced.
