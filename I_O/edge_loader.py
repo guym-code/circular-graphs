@@ -109,7 +109,12 @@ def load_edge_list_matrix_csv(path):
     suffix = path.suffix.lower()
 
     if suffix == ".csv":
-        df = pd.read_csv(path, header=None, encoding="utf-8-sig")
+        df = pd.read_csv(path, header=0, encoding="utf-8-sig", low_memory=False)
+
+        edge_index = [parse_edge(col) for col in df.columns[1:]]
+        edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+
+        return edge_index, edge_values
 
     elif suffix in (".xls", ".xlsx"):
         df = pd.read_excel(path, header=None)
