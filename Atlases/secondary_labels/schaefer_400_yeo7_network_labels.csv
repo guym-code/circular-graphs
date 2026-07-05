@@ -1,0 +1,401 @@
+ROI,Network
+1,Visual
+2,Visual
+3,Visual
+4,Visual
+5,Visual
+6,Visual
+7,Visual
+8,Visual
+9,Visual
+10,Visual
+11,Visual
+12,Visual
+13,Visual
+14,Visual
+15,Visual
+16,Visual
+17,Visual
+18,Visual
+19,Visual
+20,Visual
+21,Visual
+22,Visual
+23,Visual
+24,Visual
+25,Visual
+26,Visual
+27,Visual
+28,Visual
+29,Visual
+30,Visual
+31,Visual
+32,Somatomotor
+33,Somatomotor
+34,Somatomotor
+35,Somatomotor
+36,Somatomotor
+37,Somatomotor
+38,Somatomotor
+39,Somatomotor
+40,Somatomotor
+41,Somatomotor
+42,Somatomotor
+43,Somatomotor
+44,Somatomotor
+45,Somatomotor
+46,Somatomotor
+47,Somatomotor
+48,Somatomotor
+49,Somatomotor
+50,Somatomotor
+51,Somatomotor
+52,Somatomotor
+53,Somatomotor
+54,Somatomotor
+55,Somatomotor
+56,Somatomotor
+57,Somatomotor
+58,Somatomotor
+59,Somatomotor
+60,Somatomotor
+61,Somatomotor
+62,Somatomotor
+63,Somatomotor
+64,Somatomotor
+65,Somatomotor
+66,Somatomotor
+67,Somatomotor
+68,Somatomotor
+69,Dorsal Attention
+70,Dorsal Attention
+71,Dorsal Attention
+72,Dorsal Attention
+73,Dorsal Attention
+74,Dorsal Attention
+75,Dorsal Attention
+76,Dorsal Attention
+77,Dorsal Attention
+78,Dorsal Attention
+79,Dorsal Attention
+80,Dorsal Attention
+81,Dorsal Attention
+82,Dorsal Attention
+83,Dorsal Attention
+84,Dorsal Attention
+85,Dorsal Attention
+86,Dorsal Attention
+87,Dorsal Attention
+88,Dorsal Attention
+89,Dorsal Attention
+90,Dorsal Attention
+91,Dorsal Attention
+92,Ventral Attention
+93,Ventral Attention
+94,Ventral Attention
+95,Ventral Attention
+96,Ventral Attention
+97,Ventral Attention
+98,Ventral Attention
+99,Ventral Attention
+100,Ventral Attention
+101,Ventral Attention
+102,Ventral Attention
+103,Ventral Attention
+104,Ventral Attention
+105,Ventral Attention
+106,Ventral Attention
+107,Ventral Attention
+108,Ventral Attention
+109,Ventral Attention
+110,Ventral Attention
+111,Ventral Attention
+112,Ventral Attention
+113,Ventral Attention
+114,Limbic
+115,Limbic
+116,Limbic
+117,Limbic
+118,Limbic
+119,Limbic
+120,Limbic
+121,Limbic
+122,Limbic
+123,Limbic
+124,Limbic
+125,Limbic
+126,Limbic
+127,Frontoparietal
+128,Frontoparietal
+129,Frontoparietal
+130,Frontoparietal
+131,Frontoparietal
+132,Frontoparietal
+133,Frontoparietal
+134,Frontoparietal
+135,Frontoparietal
+136,Frontoparietal
+137,Frontoparietal
+138,Frontoparietal
+139,Frontoparietal
+140,Frontoparietal
+141,Frontoparietal
+142,Frontoparietal
+143,Frontoparietal
+144,Frontoparietal
+145,Frontoparietal
+146,Frontoparietal
+147,Frontoparietal
+148,Frontoparietal
+149,Default
+150,Default
+151,Default
+152,Default
+153,Default
+154,Default
+155,Default
+156,Default
+157,Default
+158,Default
+159,Default
+160,Default
+161,Default
+162,Default
+163,Default
+164,Default
+165,Default
+166,Default
+167,Default
+168,Default
+169,Default
+170,Default
+171,Default
+172,Default
+173,Default
+174,Default
+175,Default
+176,Default
+177,Default
+178,Default
+179,Default
+180,Default
+181,Default
+182,Default
+183,Default
+184,Default
+185,Default
+186,Default
+187,Default
+188,Default
+189,Default
+190,Default
+191,Default
+192,Default
+193,Default
+194,Default
+195,Default
+196,Default
+197,Default
+198,Default
+199,Default
+200,Default
+201,Visual
+202,Visual
+203,Visual
+204,Visual
+205,Visual
+206,Visual
+207,Visual
+208,Visual
+209,Visual
+210,Visual
+211,Visual
+212,Visual
+213,Visual
+214,Visual
+215,Visual
+216,Visual
+217,Visual
+218,Visual
+219,Visual
+220,Visual
+221,Visual
+222,Visual
+223,Visual
+224,Visual
+225,Visual
+226,Visual
+227,Visual
+228,Visual
+229,Visual
+230,Visual
+231,Somatomotor
+232,Somatomotor
+233,Somatomotor
+234,Somatomotor
+235,Somatomotor
+236,Somatomotor
+237,Somatomotor
+238,Somatomotor
+239,Somatomotor
+240,Somatomotor
+241,Somatomotor
+242,Somatomotor
+243,Somatomotor
+244,Somatomotor
+245,Somatomotor
+246,Somatomotor
+247,Somatomotor
+248,Somatomotor
+249,Somatomotor
+250,Somatomotor
+251,Somatomotor
+252,Somatomotor
+253,Somatomotor
+254,Somatomotor
+255,Somatomotor
+256,Somatomotor
+257,Somatomotor
+258,Somatomotor
+259,Somatomotor
+260,Somatomotor
+261,Somatomotor
+262,Somatomotor
+263,Somatomotor
+264,Somatomotor
+265,Somatomotor
+266,Somatomotor
+267,Somatomotor
+268,Somatomotor
+269,Somatomotor
+270,Somatomotor
+271,Dorsal Attention
+272,Dorsal Attention
+273,Dorsal Attention
+274,Dorsal Attention
+275,Dorsal Attention
+276,Dorsal Attention
+277,Dorsal Attention
+278,Dorsal Attention
+279,Dorsal Attention
+280,Dorsal Attention
+281,Dorsal Attention
+282,Dorsal Attention
+283,Dorsal Attention
+284,Dorsal Attention
+285,Dorsal Attention
+286,Dorsal Attention
+287,Dorsal Attention
+288,Dorsal Attention
+289,Dorsal Attention
+290,Dorsal Attention
+291,Dorsal Attention
+292,Dorsal Attention
+293,Dorsal Attention
+294,Ventral Attention
+295,Ventral Attention
+296,Ventral Attention
+297,Ventral Attention
+298,Ventral Attention
+299,Ventral Attention
+300,Ventral Attention
+301,Ventral Attention
+302,Ventral Attention
+303,Ventral Attention
+304,Ventral Attention
+305,Ventral Attention
+306,Ventral Attention
+307,Ventral Attention
+308,Ventral Attention
+309,Ventral Attention
+310,Ventral Attention
+311,Ventral Attention
+312,Ventral Attention
+313,Ventral Attention
+314,Ventral Attention
+315,Ventral Attention
+316,Ventral Attention
+317,Ventral Attention
+318,Ventral Attention
+319,Limbic
+320,Limbic
+321,Limbic
+322,Limbic
+323,Limbic
+324,Limbic
+325,Limbic
+326,Limbic
+327,Limbic
+328,Limbic
+329,Limbic
+330,Limbic
+331,Limbic
+332,Frontoparietal
+333,Frontoparietal
+334,Frontoparietal
+335,Frontoparietal
+336,Frontoparietal
+337,Frontoparietal
+338,Frontoparietal
+339,Frontoparietal
+340,Frontoparietal
+341,Frontoparietal
+342,Frontoparietal
+343,Frontoparietal
+344,Frontoparietal
+345,Frontoparietal
+346,Frontoparietal
+347,Frontoparietal
+348,Frontoparietal
+349,Frontoparietal
+350,Frontoparietal
+351,Frontoparietal
+352,Frontoparietal
+353,Frontoparietal
+354,Frontoparietal
+355,Frontoparietal
+356,Frontoparietal
+357,Frontoparietal
+358,Frontoparietal
+359,Frontoparietal
+360,Frontoparietal
+361,Frontoparietal
+362,Default
+363,Default
+364,Default
+365,Default
+366,Default
+367,Default
+368,Default
+369,Default
+370,Default
+371,Default
+372,Default
+373,Default
+374,Default
+375,Default
+376,Default
+377,Default
+378,Default
+379,Default
+380,Default
+381,Default
+382,Default
+383,Default
+384,Default
+385,Default
+386,Default
+387,Default
+388,Default
+389,Default
+390,Default
+391,Default
+392,Default
+393,Default
+394,Default
+395,Default
+396,Default
+397,Default
+398,Default
+399,Default
+400,Default
