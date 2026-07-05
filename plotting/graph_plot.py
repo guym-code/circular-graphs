@@ -8,7 +8,7 @@ wrap them in thin methods, whichever its author prefers.
 """
 
 import os
-from typing import Any, Dict, Optional, Protocol, Sequence, Union
+from typing import Optional, Union
 
 from matplotlib.figure import Figure
 
@@ -38,7 +38,8 @@ def plot(
 
     Args:
         graph: Object exposing edges_mat, labels_dict, secondary_labels,
-            color_scheme.
+            color_scheme (a dict mapping secondary label to color, e.g.
+            {"VisionLeft": "#ffffff", "VisionRight": "#000000"}).
         label: If True, draw each node's label from graph.labels_dict
             next to it.
         label_font: Font family for node labels, or None for default.
@@ -93,7 +94,7 @@ def plot(
             if not weight:
                 continue
             color_a, color_b = colors.resolve_edge_color_pair(
-                edge_color_method, edge_color, node_colors, color_scheme, i, j, weight
+                edge_color_method, edge_color, node_colors, i, j, weight
             )
             edges.append((i, j, weight, color_a, color_b))
 
@@ -138,7 +139,7 @@ def show(graph: CircularGraph) -> None:
 
 def savegraph(
     graph: CircularGraph,
-    fname: Union[str, "os.PathLike[str]"],
+    fname: Union[str, "os.PathLike[str]"] = defaults.SAVE_NAME,
     format: str = defaults.SAVE_FORMAT,
     dpi: int = defaults.SAVE_DPI,
     background: Optional[str] = defaults.SAVE_BACKGROUND,

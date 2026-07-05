@@ -3,7 +3,7 @@ Color resolution for nodes and edges.
 Uses matplotlib's color utilities, actual drawing happens in renderer.py.
 """
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import matplotlib as mpl
 import matplotlib.colors as mcolors
@@ -35,14 +35,14 @@ def normalize_hex(color: Optional[ColorInput]) -> Optional[str]:
 def resolve_node_colors(
     n: int,
     secondary_labels: Optional[Dict[int, str]],
-    color_scheme: Optional[Dict[str, Any]],
+    color_scheme: Optional[Dict[str, ColorInput]],
 ) -> List[str]:
     """Resolve a display color for every node.
 
-    Colors come from color_scheme['networks'][<secondary label>] when the
-    node has a secondary label with a matching entry; otherwise falls
-    back to a colormap keyed by node index. This is the single source of
-    node color used both for sec_label='Color' display and for
+    Colors come from color_scheme[<secondary label>] when the node has a
+    secondary label with a matching entry; otherwise falls back to a
+    colormap keyed by node index. This is the single source of node
+    color used both for sec_label='Color' display and for
     edge_color_method in ('Node', 'Nodes'), so the two stay consistent
     regardless of whether the color/legend is actually drawn.
 
@@ -50,18 +50,19 @@ def resolve_node_colors(
         n: Number of nodes.
         secondary_labels: Mapping of node index to secondary label, or
             None/empty if there are no secondary labels.
-        color_scheme: Mapping that may contain a "networks" dict of
-            {secondary label: color}, or None/empty.
+        color_scheme: Mapping of secondary label to color (e.g.
+            {"VisionLeft": "#ffffff", "VisionRight": "#000000"}), or
+            None/empty.
 
     Returns:
         List of n lowercase hex color strings, indexed by node position.
     """
-    networks = (color_scheme or {}).get("networks", {})
+    color_scheme = color_scheme or {}
     fallback_cmap = mpl.colormaps[defaults.NODE_FALLBACK_COLORMAP]
     colors: List[str] = []
     for i in range(n):
         label = secondary_labels.get(i) if secondary_labels else None
-        color = networks.get(label) if label is not None else None
+        color = color_scheme.get(label) if label is not None else None
         if color is None:
             t = i / max(n - 1, 1)
             color = mcolors.to_hex(fallback_cmap(t))
@@ -108,7 +109,6 @@ def resolve_edge_color_pair(
     method: str,
     edge_color: Optional[Union[ColorInput, PositiveNegativeInput]],
     node_colors: Sequence[str],
-    color_scheme: Optional[Dict[str, Any]],
     i: int,
     j: int,
     weight: float,
@@ -124,10 +124,9 @@ def resolve_edge_color_pair(
         method: One of "Uniform", "PositiveNegative", "Node", "Nodes".
         edge_color: Override color(s) for "Uniform" (single color) or
             "PositiveNegative" (dict/2-tuple of positive, negative).
-            Ignored for "Node"/"Nodes". None uses color_scheme/defaults.
+            Ignored for "Node"/"Nodes". None uses the defaults.py
+            EDGE_COLOR_* constants.
         node_colors: Per-node colors, as returned by resolve_node_colors.
-        color_scheme: Mapping that may contain "uniform"/"positive"/
-            "negative" default colors, or None/empty.
         i: Index of the edge's first endpoint node.
         j: Index of the edge's second endpoint node.
         weight: Edge weight; only its sign matters, for
@@ -145,18 +144,14 @@ def resolve_edge_color_pair(
             f"{VALID_EDGE_COLOR_METHODS}"
         )
 
-    cs = color_scheme or {}
-
     if method == "Uniform":
-        color = edge_color if edge_color else cs.get(
-            "uniform", defaults.EDGE_COLOR_UNIFORM
-        )
+        color = edge_color if edge_color else defaults.EDGE_COLOR_UNIFORM
         color = normalize_hex(color)
         return color, color
 
     if method == "PositiveNegative":
-        default_positive = cs.get("positive", defaults.EDGE_COLOR_POSITIVE)
-        default_negative = cs.get("negative", defaults.EDGE_COLOR_NEGATIVE)
+        default_positive = defaults.EDGE_COLOR_POSITIVE
+        default_negative = defaults.EDGE_COLOR_NEGATIVE
         if edge_color:
             positive, negative = _unpack_positive_negative(
                 edge_color, default_positive, default_negative

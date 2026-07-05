@@ -15,7 +15,7 @@ import sys
 import tempfile
 import warnings
 from types import SimpleNamespace
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib as mpl
 import numpy as np
@@ -64,23 +64,22 @@ def build_labels(
     return labels_dict, secondary_labels
 
 
-def build_color_scheme(secondary_labels: Dict[int, str]) -> Dict[str, Any]:
+def build_color_scheme(secondary_labels: Dict[int, str]) -> Dict[str, str]:
     """Assign each unique secondary label a distinct color.
 
     Args:
         secondary_labels: Mapping of node index to secondary label.
 
     Returns:
-        A color_scheme dict with a "networks" mapping of
-        {secondary label: hex color}.
+        color_scheme dict mapping {secondary label: hex color}, e.g.
+        {"VisionLeft": "#ffffff", "VisionRight": "#000000"}.
     """
     unique = list(dict.fromkeys(secondary_labels.values()))
     cmap = mpl.colormaps["tab20"]
-    networks = {
+    return {
         label: mpl.colors.to_hex(cmap(i / max(len(unique) - 1, 1)))
         for i, label in enumerate(unique)
     }
-    return {"networks": networks}
 
 
 def make_synthetic_matrix(n: int, seed: int = 0) -> npt.NDArray[np.float64]:
