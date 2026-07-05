@@ -261,9 +261,9 @@ def draw_arc_text(
     Characters are spaced using their real glyph advance widths (normal,
     non-stretched letter spacing), centered as a whole on `mid_angle`,
     and each is rotated to be tangent to the circle at its position (the
-    text baseline follows the arc's curvature). On the bottom half of
-    the circle, each glyph's rotation is flipped 180 degrees so the text
-    still reads correctly and upright when traced along the curve.
+    text baseline follows the arc's curvature), consistently all the way
+    around -- so, as with a clock face, text at the bottom of the circle
+    appears upside down rather than being flipped upright.
 
     Args:
         ax: Axes to draw into.
@@ -292,14 +292,11 @@ def draw_arc_text(
         offsets.append(cumulative + width / 2.0 - total_width / 2.0)
         cumulative += width
 
-    mid_deg = math.degrees(mid_angle) % 360
-    flip = 90 < mid_deg < 270
-
     for ch, offset in zip(text, offsets):
         angle = mid_angle - offset / radius
         x, y = layout.polar_to_xy(angle, radius)
         deg = math.degrees(angle)
-        rotation = deg - 90 + (180 if flip else 0)
+        rotation = deg - 90
         ax.text(
             x,
             y,
