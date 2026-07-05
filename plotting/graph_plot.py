@@ -14,25 +14,13 @@ from matplotlib.figure import Figure
 
 from . import colors, defaults, layout, renderer
 from .colors import ColorInput, PositiveNegativeInput
+from CircularGraph import CircularGraph
 
 VALID_SEC_LABEL_MODES = ("Color", "Bracket", "ColorBracket", "False")
 
 
-class CircularGraphLike(Protocol):
-    """Structural type for the attributes graph_plot functions rely on.
-
-    Matches the (not yet implemented) CircularGraph class: any object
-    with these four attributes can be passed to plot/show/savegraph.
-    """
-
-    edges_mat: Sequence[Sequence[float]]
-    labels_dict: Dict[int, str]
-    secondary_labels: Optional[Dict[int, str]]
-    color_scheme: Optional[Dict[str, Any]]
-
-
 def plot(
-    graph: CircularGraphLike,
+    graph: CircularGraph,
     label: bool = defaults.LABEL,
     label_font: Optional[str] = defaults.LABEL_FONT,
     label_size: float = defaults.LABEL_SIZE,
@@ -50,7 +38,7 @@ def plot(
 
     Args:
         graph: Object exposing edges_mat, labels_dict, secondary_labels,
-            color_scheme (see CircularGraphLike).
+            color_scheme.
         label: If True, draw each node's label from graph.labels_dict
             next to it.
         label_font: Font family for node labels, or None for default.
@@ -133,7 +121,7 @@ def plot(
     return fig
 
 
-def show(graph: CircularGraphLike) -> None:
+def show(graph: CircularGraph) -> None:
     """Show the figure created by a prior call to plot(graph, ...).
 
     Args:
@@ -149,7 +137,7 @@ def show(graph: CircularGraphLike) -> None:
 
 
 def savegraph(
-    graph: CircularGraphLike,
+    graph: CircularGraph,
     fname: Union[str, "os.PathLike[str]"],
     format: str = defaults.SAVE_FORMAT,
     dpi: int = defaults.SAVE_DPI,
