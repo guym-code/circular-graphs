@@ -181,3 +181,73 @@ def load_secondary_labels(obj):
     """
 
     return load_labels(obj)
+
+def load_color_palette(obj):
+    """
+    Load a color palette mapping.
+
+    Parameters
+    ----------
+    obj : None | dict | str | pathlib.Path
+
+        Either:
+        - None
+        - dictionary {group: color}
+        - path to a .csv, .txt, .tsv, .xls or .xlsx file
+
+    Expected file format
+    --------------------
+    First row may optionally contain headers.
+
+    Example:
+
+        Network,Color
+        Visual,#A450AE
+        Somatomotor,#779AC0
+        ...
+
+    Returns
+    -------
+    dict[str, str] | None
+    """
+
+    if obj is None:
+        return None
+
+    if isinstance(obj, dict):
+        return obj
+
+    path = Path(obj)
+
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+
+    suffix = path.suffix.lower()
+
+    if suffix == ".csv":
+        df = pd.read_csv(path, header=None)
+
+    elif suffix == ".tsv":
+        df = pd.read_csv(path, sep="\t", header=None)
+
+    elif suffix == ".txt":
+        df = pd.read_csv(path, sep=None, engine="python", header=None)
+
+    elif suffix in (".xls", ".xlsx"):
+        df = pd.read_excel(path, header=None)
+
+    else:
+        raise ValueError(
+            f"Unsupported file type '{suffix}'. "
+            "Supported formats are: .csv, .tsv, .txt, .xls, .xlsx"
+        )
+
+    # Remove title row:
+    df = df.iloc[1:].reset_index(drop=True)
+
+    if df.shape[1] < 2:
+        raise ValueError("Color palette file must contain at least two columns.")
+
+    palette = dict(zip(df.iloc[:, 0].astype(str), df.iloc[:, 1].astype(str)))
+
+    return palette
