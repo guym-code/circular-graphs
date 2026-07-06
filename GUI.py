@@ -12,8 +12,38 @@ import webbrowser
 
 
 class CircularGraphGUI:
+    """Graphical user interface for creating circular graph visualizations.
 
-    def __init__(self):
+    This class provides the main Tkinter-based interface for loading
+    connectivity data, selecting labeling and visualization options,
+    configuring thresholding parameters, and exporting circular graph
+    figures. It serves as the central controller between user input and
+    the :class:`CircularGraph` visualization engine.
+
+    Attributes
+    ----------
+    root : tk.Tk
+        Main application window.
+    canvas : tk.Canvas
+        Canvas used for displaying the GUI background and static text.
+    attributes : dict
+        Dictionary containing the user-selected plotting parameters.
+    color_palette_path : str or None
+        Path to a custom node color palette file. If ``None``, the
+        default color palette is used.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the circular graph GUI.
+
+        Defines default GUI settings, creates the main Tkinter window,
+        sets the window icon and background image, initializes optional
+        paths, creates all widgets, and starts the GUI event loop.
+
+        Returns
+        -------
+        None
+        """
         # Init variables
         self.browse_button_txt = 'Browse'
 
@@ -22,7 +52,7 @@ class CircularGraphGUI:
         self.body_font = ('Calibri Light', 10)
         self.help_window_titles = ('Calibri Light', 10, 'bold')
         self.txt_color = 'black'
-        
+
         self.anchor = 'nw'
         self.combox_state = 'readonly'
         self.help_window_justify = 'left'
@@ -32,21 +62,34 @@ class CircularGraphGUI:
 
         # Create window
         self.root = tk.Tk()
-        self.root.geometry('770x520') # Window size
+        self.root.geometry('770x520')  # Window size
 
         # Set the window title and icon
-        self.root.title('Circular Graph Plotter')
-        icon = tk.PhotoImage(file='brain_icon.png')
+        self.root.title('NeuroCircle')
+        icon = tk.PhotoImage(file='icons/brain_icon.png')
         self.root.iconphoto(True, icon)
 
         # Set background image
-        self.background_image = Image.open('circular_graph_bckg.jpeg').resize((770, 520))
+        self.background_image = Image.open(
+            'icons/circular_graph_bckg.jpeg'
+        ).resize((770, 520))
         self.background_image = ImageTk.PhotoImage(self.background_image)
-        self.canvas = tk.Canvas(self.root, width=770, height=520, highlightthickness=0)
-        self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
-        self.canvas.create_image(0, 0, image=self.background_image, anchor=self.anchor)
 
-        # Initialize optional color palette path, default is none
+        self.canvas = tk.Canvas(
+            self.root,
+            width=770,
+            height=520,
+            highlightthickness=0
+        )
+        self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
+        self.canvas.create_image(
+            0,
+            0,
+            image=self.background_image,
+            anchor=self.anchor
+        )
+
+        # Initialize optional color palette path, default is None
         self.color_palette_path = None
 
         self.create_widgets()
@@ -55,91 +98,372 @@ class CircularGraphGUI:
         self.root.mainloop()
 
 
-    def create_widgets(self):
-        """Create all GUI widgets."""
+    def create_widgets(self) -> None:
+        """Create and place all widgets in the main GUI window.
+
+        Builds the main interface, including data input fields, atlas
+        selection, labeling options, edge-color settings, thresholding
+        controls, radius selection, output settings, help buttons, and the
+        final plotting button.
+
+        Returns
+        -------
+        None
+        """
         # Create Gui Title
-        self.canvas.create_text(385, 45, text='Circular Graph Plotter', font=self.title_font, fill=self.txt_color)
+        self.canvas.create_text(
+            385,
+            45,
+            text='Circular Graph Plotter',
+            font=self.title_font,
+            fill=self.txt_color
+        )
 
         # Create Data Subtitle
-        self.canvas.create_text(20, 80, text='Data', anchor=self.anchor, font=self.subtitle_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            80, 
+            text='Data', 
+            anchor=self.anchor, 
+            font=self.subtitle_font, 
+            fill=self.txt_color
+        )
 
         # Create connectivity matrix/edge list file input
-        self.canvas.create_text(20, 120, text='Path to conn mat/Edges file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            120, 
+            text='Path to conn mat/Edges file:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
+
         self.mat_entry = self.create_entry(50, 200, 120)
-        self.mat_browse_button = self.create_button(self.browse_button_txt, self.browse_action, 530, 117, args=(self.mat_entry,))
+        self.mat_browse_button = self.create_button(
+            self.browse_button_txt, 
+            self.browse_action, 
+            530, 
+            117, 
+            args=(self.mat_entry,)
+        )
         
         # Create connectivity matrix file type options
         self.file_type = tk.StringVar(value='')
-        self.connmat_rb = tk.Radiobutton(self.root, text='Connectivity matrix', variable=self.file_type, value='matrix', bg=self.center_color)
+        self.connmat_rb = tk.Radiobutton(
+            self.root, 
+            text='Connectivity matrix', 
+            variable=self.file_type, 
+            value='matrix', 
+            bg=self.center_color
+        )
+
         self.connmat_rb.place(x=227, y=145)
-        self.edges_rb = tk.Radiobutton(self.root, text='Edge list', variable=self.file_type, value='edge_list', bg=self.center_color)
+        self.edges_rb = tk.Radiobutton(
+            self.root, 
+            text='Edge list', 
+            variable=self.file_type, 
+            value='edge_list', 
+            bg=self.center_color
+        )
+
         self.edges_rb.place(x=397, y=145)
 
         # Create Options and entry for atlas
-        self.canvas.create_text(20, 170, text='Choose atlas or labels file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
-        atlas_1_options = ['Choose an atlas', 'Multi-Modal Parcellation (MMP)', 'Schaefer 100', 'Schaefer 400', 'Schaefer 600', 'Schaefer 1000', 'Other']
+        self.canvas.create_text(
+            20, 
+            170, 
+            text='Choose atlas or labels file:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
+
+        atlas_1_options = [
+            'Choose an atlas', 
+            'Multi-Modal Parcellation (MMP)', 
+            'Schaefer 100', 
+            'Schaefer 400', 
+            'Schaefer 600', 
+            'Schaefer 1000', 
+            'Other'
+        ]
+
         choice_change_args_first = ('first', 400, 172, 690, 165)
-        self.atlas_1_choice, self.other_1_entry, self.other_1_browse_button = self.create_multi_options_other(atlas_1_options, 27, 200, 170, 45, 'Enter path here..', self.browse_action, self.clear_placeholder, self.restore_placeholder, self.choice_change, choice_change_args_first)
+
+        (
+        self.atlas_1_choice,
+        self.other_1_entry,
+        self.other_1_browse_button
+    ) = self.create_multi_options_other(
+        atlas_1_options,
+        27,
+        200,
+        170,
+        45,
+        'Enter path here..',
+        self.browse_action,
+        self.clear_placeholder,
+        self.restore_placeholder,
+        self.choice_change,
+        choice_change_args_first
+    )
 
         # Create entry for secondary label
-        self.canvas.create_text(20, 195, text='Secondary label file (optional):', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
-        atlas_2_options = ['Choose a file', 'Schaefer 100', 'Schaefer 400', 'Schaefer 600', 'Schaefer 1000', 'Other']
-        choice_change_args_second = ('second', 400, 195, 690, 192)
-        self.atlas_2_choice, self.other_2_entry, self.other_2_browse_button = self.create_multi_options_other(atlas_2_options, 27, 200, 195, 45, 'Enter path here..', self.browse_action, self.clear_placeholder, self.restore_placeholder, self.choice_change, choice_change_args_second)
+        self.canvas.create_text(
+            20, 
+            195, 
+            text='Secondary label file (optional):', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
+
+        atlas_2_options = [
+            'Choose a file', 
+            'Schaefer 100', 
+            'Schaefer 400', 
+            'Schaefer 600', 
+            'Schaefer 1000', 
+            'Other'
+        ]
+
+        choice_change_args_second = (
+            'second', 
+            400, 
+            195, 
+            690, 
+            192
+        )
+
+        (
+        self.atlas_2_choice, 
+        self.other_2_entry, 
+        self.other_2_browse_button
+    ) = self.create_multi_options_other(
+        atlas_2_options, 
+        27, 
+        200, 
+        195, 
+        45, 
+        'Enter path here..', 
+        self.browse_action, 
+        self.clear_placeholder, 
+        self.restore_placeholder, 
+        self.choice_change, 
+        choice_change_args_second
+    )
 
         # Create Plot Subtitle
-        self.canvas.create_text(20, 240, text='Plot Parameters', anchor=self.anchor, font=self.subtitle_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            240, 
+            text='Plot Parameters', 
+            anchor=self.anchor, 
+            font=self.subtitle_font, 
+            fill=self.txt_color
+        )
 
         # Create first level labeling
-        self.canvas.create_text(20, 280, text='Choose 1st level labeling:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            280, 
+            text='Choose 1st level labeling:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
+
         first_level_label_options = [False, True]
         self.labeling_choice = self.create_combox(first_level_label_options, 10, 200, 278)
 
         # Create secondary label method
-        self.canvas.create_text(20, 305, text='Choose secondary labeling:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
-        self.color_var, self.color_cb = self.create_checkbuton('Color', self.update_secondary_options, 195, 300)
-        self.color_palette_button = tk.Button(self.root, text='Select Color palette', bg=self.center_color, command=self.select_color_palette)
+        self.canvas.create_text(
+            20, 
+            305, 
+            text='Choose secondary labeling:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
 
-        self.grouping_var, self.grouping_cb = self.create_checkbuton('Grouping', self.update_secondary_options, 260, 300)
-        self.none_var, self.none_cb = self.create_checkbuton('None', self.update_secondary_options, 343, 301)
+        (
+        self.color_var, 
+        self.color_cb
+    ) = self.create_checkbuton(
+        'Color', 
+        self.update_secondary_options, 
+        195, 
+        300
+    )
+        
+        self.color_palette_button = tk.Button(
+            self.root, 
+            text='Select Color palette', 
+            bg=self.center_color, 
+            command=self.select_color_palette
+        )
 
-        self.warning_label = tk.Label(self.root, text='', fg='red', bg=self.side_color)
+        (
+        self.grouping_var, 
+        self.grouping_cb
+    ) = self.create_checkbuton(
+        'Grouping', 
+        self.update_secondary_options, 
+        260, 
+        300
+    )
+        
+        (
+        self.none_var, 
+        self.none_cb
+    ) = self.create_checkbuton(
+        'None', 
+        self.update_secondary_options, 
+        343, 
+        301
+    )
+
+        self.warning_label = tk.Label(
+            self.root, 
+            text='', 
+            fg='red', 
+            bg=self.side_color
+        )
+
         self.warning_label.place(x=200, y=220)
 
         # Create edge color method
-        self.canvas.create_text(20, 330, text='Edge color method:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            330, 
+            text='Edge color method:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
 
-        edge_color_options = ['Uniform', 'PositiveNegative', 'Node', 'Nodes']
-        self.edge_color_choice = self.create_combox(edge_color_options, 20, 200, 327)
+        edge_color_options = [
+            'Uniform', 
+            'PositiveNegative', 
+            'Node', 
+            'Nodes'
+        ]
+        
+        self.edge_color_choice = self.create_combox(
+            edge_color_options, 
+            20, 
+            200, 
+            327
+        )
 
         help_dict = {
             'title': edge_color_options,
-            'body': ['All edges are displayed using the same color.', 
-                     'Positive edges are colored red and negative edges are \ncolored blue.',
-                     'Each edge is colored according to the color of the lower \nindexed node.',
-                     'Each edge is colored with a gradient between the colors of \nits two connected nodes.'
-                     ]
+            'body': [
+                'All edges are displayed using the same color.',
+                (
+                    'Positive edges are colored red and negative edges are\n'
+                    'colored blue.'
+                ),
+                (
+                    'Each edge is colored according to the color of the lower\n'
+                    'indexed node.'
+                ),
+                (
+                    'Each edge is colored with a gradient between the colors of\n'
+                    'its two connected nodes.'
+                )
+            ]
         }
-        edge_help_args = ('Edge_color_help', '350x260', self.side_color, 4, help_dict)
-        self.edge_help_button = self.create_button('?', self.create_help_window, 400, 323, 2, edge_help_args)
+
+        edge_help_args = (
+            'Edge_color_help', 
+            '350x260', 
+            self.side_color, 
+            4, 
+            help_dict
+        )
+
+        self.edge_help_button = self.create_button(
+            '?', 
+            self.create_help_window, 
+            400, 
+            323, 
+            2, 
+            edge_help_args
+        )
 
         # Create threshold part
-        self.canvas.create_text(20, 355, text='Threshold method:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            355, 
+            text='Threshold method:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
 
-        threshold_options = ['Not thresholded', 'Weighted Average', 'Positive Negative Val', 'Positive Negative Percentile']
-        self.threshold_choice = self.create_combox(threshold_options, 28, 200, 352)
-        self.threshold_choice.bind('<<ComboboxSelected>>', self.update_threshold_entries)
+        threshold_options = [
+            'Not thresholded', 
+            'Weighted Average', 
+            'Positive Negative Val', 
+            'Positive Negative Percentile'
+        ]
+
+        self.threshold_choice = self.create_combox(
+            threshold_options, 
+            28, 
+            200, 
+            352
+        )
+        
+        self.threshold_choice.bind(
+            '<<ComboboxSelected>>', 
+            self.update_threshold_entries
+        )
         
         help_dict = {
             'title': threshold_options,
-            'body': ['Show all edges.', 
-                     'Display only edges connected to nodes whose average \nabsolute edge weight is greater than the specified \nthreshold (exclusive). \n Range: 0–1.',
-                     'Display only edges whose weight is greater than the \nspecified positive threshold or less than the specified \nnegative threshold (exclusive). \nPositive range: 0–1. \nNegative range: –1–0.',
-                     'Display only edges whose weights fall within the selected \npercentile of the positive or negative edge-weight \ndistribution. \nRange: 0–100.'
-                     ]
+            'body': [
+                'Show all edges.',
+                (
+                    'Display only edges connected to nodes whose average\n'
+                    'absolute edge weight is greater than the specified\n'
+                    'threshold (exclusive).\n'
+                    'Range: 0–1.'
+                ),
+                (
+                    'Display only edges whose weight is greater than the\n'
+                    'specified positive threshold or less than the specified\n'
+                    'negative threshold (exclusive).\n'
+                    'Positive range: 0–1.\n'
+                    'Negative range: –1–0.'
+                ),
+                (
+                    'Display only edges whose weights fall within the selected\n'
+                    'percentile of the positive or negative edge-weight\n'
+                    'distribution.\n'
+                    'Range: 0–100.'
+                )
+            ]
         }
-        threshold_help_args = ('Thresholding Methods', '350x370', self.side_color, 4, help_dict)
-        self.threshold_help_button = self.create_button('?', self.create_help_window, 400, 352, 2, threshold_help_args)
+
+        threshold_help_args = (
+            'Thresholding Methods', 
+            '350x370', 
+            self.side_color, 
+            4, 
+            help_dict
+        )
+
+        self.threshold_help_button = self.create_button(
+            '?', 
+            self.create_help_window, 
+            400, 
+            352, 
+            2, 
+            threshold_help_args
+        )
 
         self.threshold_label_1 = tk.Label(self.root)
         self.threshold_entry_1 = tk.Entry(self.root, width=10)
@@ -148,19 +472,46 @@ class CircularGraphGUI:
         self.threshold_entry_2 = tk.Entry(self.root, width=10)
 
         # Create Radius part
-        self.canvas.create_text(20, 380, text='Choose radius size [1,10]:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            380, 
+            text='Choose radius size [1,10]:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
         self.radius = self.create_entry(10, 200, 380)
 
         # Create circular graph file attributes
-        self.canvas.create_text(20, 405, text='Output filename:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            20, 
+            405, 
+            text='Output filename:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
+
         self.filename_entry = self.create_entry(35, 200, 405)
 
-        self.canvas.create_text(485, 407, text='format:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(
+            485, 
+            407, 
+            text='format:', 
+            anchor=self.anchor, 
+            font=self.body_font, 
+            fill=self.txt_color
+        )
 
         file_formats = ['png', 'jpeg', 'svg', 'pdf']
         self.format_choice = self.create_combox(file_formats, 8, 570, 405)
 
-        self.done_button = self.create_button('Done', self.plot_circular_graph, 370, 460)
+        self.done_button = self.create_button(
+            'Save Figure', 
+            self.plot_circular_graph, 
+            360, 
+            460
+        )
     
     
     def create_entry(self, width: int, x: int, y: int) -> tk.Entry:
@@ -955,7 +1306,21 @@ class CircularGraphGUI:
             self.threshold_entry_2.place_forget()
 
     
-    def get_threshold(self):
+    def get_threshold(self) -> Optional[dict]:
+        """Return the selected thresholding configuration.
+
+        Retrieves the selected thresholding method and its corresponding
+        parameter values from the GUI. The returned dictionary is formatted
+        for use by the circular graph plotting functions. If no thresholding
+        method is selected, ``None`` is returned.
+
+        Returns
+        -------
+        dict or None
+            Dictionary containing the selected thresholding method and its
+            associated parameter values, or ``None`` if no thresholding method
+            is selected.
+        """
         method = self.threshold_choice.get()
         params = None
 
@@ -982,44 +1347,79 @@ class CircularGraphGUI:
         return params
             
 
-    def plot_circular_graph(self):
+    def plot_circular_graph(self) -> None:
+        """Create, display, and save the circular graph.
+
+        Collects all user-selected GUI parameters, creates a
+        ``CircularGraph`` object, optionally applies thresholding, plots the
+        graph, displays it, and saves it to the selected output file.
+
+        The collected GUI parameters are also stored in ``self.attributes``
+        for reference.
+
+        Returns
+        -------
+        None
+        """
+
+        # Get all attributes from GUI
         self.attributes = {
             'mat_path': self.mat_entry.get().strip(),
             'mat_type': self.file_type.get(),
             'show_first_labels': self.labeling_choice.get() == 'True',
-            'show_second_labels': self.get_second_label_presentations(self.color_var.get(), self.grouping_var.get()),
+            'show_second_labels': self.get_second_label_presentations(
+                self.color_var.get(),
+                self.grouping_var.get()
+            ),
             'color_palette': self.color_palette_path,
             'edge_color_method': self.edge_color_choice.get(),
-            'radius': float(self.radius.get()),
-            'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}' if self.filename_entry.get().strip() is not None else f'{defaults.SAVE_NAME}.{self.format_choice.get()}',
+            'radius': float(self.radius.get())
+                if self.radius.get()
+                else defaults.NODE_RADIUS,
+            'output_file': (
+                f'{self.filename_entry.get().strip()}.{self.format_choice.get()}'
+                if self.filename_entry.get().strip() is not None
+                else f'{defaults.SAVE_NAME}.{self.format_choice.get()}'
+            ),
             'output_format': self.format_choice.get()
         }
 
-        self.attributes['first_labels_file'] = self.get_atlas(self.atlas_1_choice.get(), self.other_1_entry.get().strip())
-        self.attributes['secondary_labels_file'] = self.get_atlas(self.atlas_2_choice.get(), self.other_2_entry.get().strip())
+        self.attributes['first_labels_file'] = self.get_atlas(
+            self.atlas_1_choice.get(),
+            self.other_1_entry.get().strip()
+        )
+        self.attributes['secondary_labels_file'] = self.get_atlas(
+            self.atlas_2_choice.get(),
+            self.other_2_entry.get().strip()
+        )
 
+        # Create circular graph object
         cg_object = cg.CircularGraph(
-                    mat_path=self.attributes['mat_path'],
-                    mat_type=self.attributes['mat_type'],
-                    labels=self.attributes['first_labels_file'],
-                    secondary_labels=self.attributes['secondary_labels_file'],
-                    color_palette=self.attributes['color_palette']
-                    )
+            mat_path=self.attributes['mat_path'],
+            mat_type=self.attributes['mat_type'],
+            labels=self.attributes['first_labels_file'],
+            secondary_labels=self.attributes['secondary_labels_file'],
+            color_palette=self.attributes['color_palette']
+        )
 
+        # Threshold according to user input
         threshold_params = self.get_threshold()
+
         if threshold_params:
             cg_object.apply_threshold(**threshold_params)
 
-        cg_object.plot(label=self.attributes['show_first_labels'],
-                       sec_label=self.attributes['show_second_labels'],
-                       edge_color_method=self.attributes['edge_color_method'],
-                       radius=self.attributes['radius']
+        # Plot circular graph
+        cg_object.plot(
+            label=self.attributes['show_first_labels'],
+            sec_label=self.attributes['show_second_labels'],
+            edge_color_method=self.attributes['edge_color_method'],
+            radius=self.attributes['radius']
         )
 
-        cg_object.show()
-
-        cg_object.savegraph(fname=self.attributes['output_file'],
-                            format=self.attributes['output_format']
+        # Save figure
+        cg_object.savegraph(
+            fname=self.attributes['output_file'],
+            format=self.attributes['output_format']
         )
 
 

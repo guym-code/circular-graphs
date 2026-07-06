@@ -49,13 +49,16 @@ def edge_list_to_matrix(
         (i,j) and (j,i).
     """
 
-    edge_values = np.asarray(edge_values)
+    edge_values = np.asarray(edge_values, dtype=float)
 
     if edge_values.ndim == 2:
         edge_values = edge_values[subject_idx]
 
     if edge_values.ndim != 1:
         raise ValueError(f"Expected 1D edge values, got shape {edge_values.shape}")
+
+    if np.any(edge_values < -1) or np.any(edge_values > 1):
+        raise ValueError("Edge values must be between -1 and 1.")
 
     if len(edge_values) != len(edge_index):
         raise ValueError(
