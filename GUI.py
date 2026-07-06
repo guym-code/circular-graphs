@@ -60,7 +60,7 @@ class CircularGraphGUI:
         # Create connectivity matrix/edge list file input
         self.canvas.create_text(20, 120, text='Path to conn mat/Edges file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
         self.mat_entry = self.create_entry(50, 200, 120)
-        self.mat_browse_button = self.create_button(self.browse_button_txt, self.browse_action, 530, 117, entry=self.mat_entry)
+        self.mat_browse_button = self.create_button(self.browse_button_txt, self.browse_action, 530, 117, args=(self.mat_entry))
         
         # Create connectivity matrix file type options
         self.file_type = tk.StringVar(value='')
@@ -105,7 +105,17 @@ class CircularGraphGUI:
 
         edge_color_options = ['Uniform', 'PositiveNegative', 'Node', 'Nodes']
         self.edge_color_choice = self.create_combox(edge_color_options, 20, 200, 327)
-        self.edge_help_button = self.create_button('?', self.show_edge_color_help, 400, 323, 2)
+
+        help_dict = {
+            'title': ['Uniform', 'PositiveNegative', 'Node', 'Nodes'],
+            'body': ['All edges are displayed using the same color.', 
+                     'Positive edges are colored red and negative edges are \ncolored blue.',
+                     'Each edge is colored according to the color of the lower \nindexed node.',
+                     'Each edge is colored with a gradient between the colors of \nits two connected nodes.'
+                     ]
+        }
+        edge_help_args = ('Edge_color_help', '350x260', self.side_color, 4, help_dict)
+        self.edge_help_button = self.create_button('?', self.create_help_window, 400, 323, 2, edge_help_args)
 
         # Create threshold part
         self.canvas.create_text(20, 355, text='Threshold method:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
@@ -113,7 +123,17 @@ class CircularGraphGUI:
         threshold_options = ['Not thresholded', 'Weighted Average', 'Positive Negative Val', 'Positive Negative Percentile']
         self.threshold_choice = self.create_combox(threshold_options, 28, 200, 352)
         self.threshold_choice.bind('<<ComboboxSelected>>', self.update_threshold_entries)
-        self.threshold_help_button = self.create_button('?', self.show_threshold_help, 400, 352, 2)
+        
+        help_dict = {
+            'title': ['Not thresholded', 'Weighted Average', 'Positive Negative Val', 'Positive Negative Percentile'],
+            'body': ['Show all edges.', 
+                     'Display only edges connected to nodes whose average \nabsolute edge weight is greater than the specified \nthreshold (exclusive). \n Range: 0–1.',
+                     'Display only edges whose weight is greater than the \nspecified positive threshold or less than the specified \nnegative threshold (exclusive). \nPositive range: 0–1. \nNegative range: –1–0.',
+                     'Display only edges whose weights fall within the selected \npercentile of the positive or negative edge-weight \ndistribution. \nRange: 0–100.'
+                     ]
+        }
+        threshold_help_args = ('Thresholding Methods', '350x370', self.side_color, 4, help_dict)
+        self.threshold_help_button = self.create_button('?', self.create_help_window, 400, 352, 2, threshold_help_args)
 
         self.threshold_label_1 = tk.Label(self.root)
         self.threshold_entry_1 = tk.Entry(self.root, width=10)
@@ -140,8 +160,8 @@ class CircularGraphGUI:
         return entry
     
 
-    def create_button(self, txt, cmd, x, y, width = None, entry=None):
-        button = tk.Button(self.root, text=txt, command=lambda: cmd(entry) if entry else cmd(), width=width)
+    def create_button(self, txt, cmd, x, y, width = None, args=None):
+        button = tk.Button(self.root, text=txt, command=lambda: cmd(*args) if args else cmd(), width=width)
         button.place(x=x, y=y)
 
         return button
@@ -244,32 +264,6 @@ class CircularGraphGUI:
             tk.Label(window, text=labels_help_dict['body'][i], justify=self.help_window_justify, bg=self.side_color).pack(anchor=self.anchor, padx=padx_body)
 
 
-    def show_edge_color_help(self):
-        help_dict = {
-            'title': ['Uniform', 'PositiveNegative', 'Node', 'Nodes'],
-            'body': ['All edges are displayed using the same color.', 
-                     'Positive edges are colored red and negative edges are \ncolored blue.',
-                     'Each edge is colored according to the color of the lower \nindexed node.',
-                     'Each edge is colored with a gradient between the colors of \nits two connected nodes.'
-                     ]
-        }
-
-        self.create_help_window('Edge_color_help', '350x260', self.side_color, 4, help_dict)
-
-
-    def show_threshold_help(self):
-        help_dict = {
-            'title': ['Not thresholded', 'Weighted Average', 'Positive Negative Val', 'Positive Negative Percentile'],
-            'body': ['Show all edges.', 
-                     'Display only edges connected to nodes whose average \nabsolute edge weight is greater than the specified \nthreshold (exclusive). \n Range: 0–1.',
-                     'Display only edges whose weight is greater than the \nspecified positive threshold or less than the specified \nnegative threshold (exclusive). \nPositive range: 0–1. \nNegative range: –1–0.',
-                     'Display only edges whose weights fall within the selected \npercentile of the positive or negative edge-weight \ndistribution. \nRange: 0–100.'
-                     ]
-        }
-
-        self.create_help_window('Thresholding Methods', '350x370', self.side_color, 4, help_dict)
-
-
     def select_color_palette(self):
         self.color_window = tk.Toplevel(self.root)
         self.color_window.title('Color palette')
@@ -316,46 +310,38 @@ class CircularGraphGUI:
         if color_var and grouping_var:
             return 'ColorBracket'
         
-        elif color_var:
-            return 'Color'
-        
         elif self.grouping_var:
             return 'Bracket'
 
-        return 'False'
+        return 'Color'
 
 
-    def update_threshold_entries(self, event=None):
+    def change_threshold_entry_method(self, label, entry, txt, label_x, label_y, entry_x, entry_y):
+        label.config(text=txt, bg=self.side_color)
+        label.place(x=label_x, y=label_y)
+        entry.place(x=entry_x, y=entry_y)
 
-        self.threshold_label_1.grid_remove()
-        self.threshold_entry_1.grid_remove()
-        self.threshold_label_2.grid_remove()
-        self.threshold_entry_2.grid_remove()
+
+    def update_threshold_entries(self, event):
 
         method = self.threshold_choice.get()
 
         if method == 'Weighted Average':
-            self.threshold_label_1.config(text='Weight [0,1]:', bg=self.side_color)
-            self.threshold_label_1.place(x=440, y=352)
-            self.threshold_entry_1.place(x=510, y=352)
+            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Weight [0,1]:', 440, 352, 510, 352)
 
         elif method == 'Positive Negative Val':
-            self.threshold_label_1.config(text='Positive [0,1]:', bg=self.side_color)
-            self.threshold_label_1.place(x=440, y=352)
-            self.threshold_entry_1.place(x=520, y=352)
-
-            self.threshold_label_2.config(text='Negative [-1,0]:', bg=self.side_color)
-            self.threshold_label_2.place(x=590, y=352)
-            self.threshold_entry_2.place(x=680, y=352)
+            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,1]:', 440, 352, 520, 352)
+            self.change_threshold_entry_method(self.threshold_label_2, self.threshold_entry_2, 'Negative [-1,0]:', 590, 352, 680, 352)
         
         elif method == 'Positive Negative Percentile':
-            self.threshold_label_1.config(text='Positive [0,100]:', bg=self.side_color)
-            self.threshold_label_1.place(x=440, y=352)
-            self.threshold_entry_1.place(x=530, y=352)
-
-            self.threshold_label_2.config(text='Negative [0,100]:', bg=self.side_color)
-            self.threshold_label_2.place(x=590, y=352)
-            self.threshold_entry_2.place(x=690, y=352)
+            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,100]:', 440, 352, 530, 352)
+            self.change_threshold_entry_method(self.threshold_label_2, self.threshold_entry_2, 'Negative [0,100]:', 590, 352, 690, 352)
+        
+        else:
+            self.threshold_label_1.place_forget()
+            self.threshold_entry_1.place_forget()
+            self.threshold_label_2.place_forget()
+            self.threshold_entry_2.place_forget()
             
 
     def plot_circular_graph(self):
@@ -366,13 +352,15 @@ class CircularGraphGUI:
             'show_second_labels': self.get_second_label_presentations(self.color_var.get(), self.grouping_var.get()),
             'color_palette': self.color_palette_path,
             'edge_color_method': self.edge_color_choice.get(),
-            'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}'
+            'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}' if self.filename_entry.get().strip() is not None else f'Untitled.{self.format_choice.get()}',
+            'output_format': self.format_choice.get()
         }
 
         self.attributes['first_labels_file'] = self.get_atlas(self.atlas_1_choice.get(), self.other_1_entry.get().strip())
         self.attributes['secondary_labels_file'] = self.get_atlas(self.atlas_2_choice.get(), self.other_2_entry.get().strip())
 
         print(self.attributes)
+
         # cg_object = CircularGraph(
         #             mat_path=self.attributes['mat_path'],
         #             mat_type=self.attributes['mat_type'],
@@ -380,6 +368,17 @@ class CircularGraphGUI:
         #             secondary_labels=self.attributes['secondary_labels_file'],
         #             color_palette=self.attributes['color_palette']
         #             )
+
+        # cg_object.plot(label=self.attributes['show_first_labels'],
+        #                sec_label=self.attributes['show_second_labels'],
+        #                edge_color_method=self.attributes['edge_color_method']
+        # )
+
+        # cg_object.show()
+
+        # cg_object.savegraph(fname=self.attributes['output_file'],
+        #                     format=self.attributes['output_format']
+        # )
 
 
 if __name__ == '__main__':
