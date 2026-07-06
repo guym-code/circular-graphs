@@ -1,5 +1,5 @@
 # NeuroCircles
-<img width="720" height="720" alt="circular_graph" src="https://github.com/user-attachments/assets/27b7a785-a6d0-43e2-b396-06862ef69885" />
+<img width="3646" height="3646" alt="test_graph" src="https://github.com/user-attachments/assets/7ff0c661-de00-4364-b894-d2062813cb22" />
 
 
 ## Shared Documentation
