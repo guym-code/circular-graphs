@@ -147,7 +147,7 @@ def load_labels(obj):
         - a list, tuple or NumPy array of labels,
         - a predefined atlas name (see LABELS_DICT),
         - a path to a .csv, .tsv, .txt, .xls, .xlsx,
-          .mat or .npy file.
+        or .npy file.
 
         For table-based files, labels are assumed to be stored
         in the final column.
@@ -185,19 +185,16 @@ def load_labels(obj):
 
     suffix = path.suffix.lower()
 
-    if suffix in (".csv", ".tsv", ".txt", ".xls", ".xlsx"):
+    if suffix in (".csv", ".tsv", ".txt", ".xls", ".xlsx"): 
         return _load_labels_table(path, suffix)
 
     if suffix == ".npy":
         arr = np.load(path, allow_pickle=True).squeeze()
         return arr.astype(str).tolist()
 
-    if suffix == ".mat":
-        return _load_mat_labels(path)
-
     raise ValueError(
         f"Unsupported file type '{suffix}'. "
-        "Supported formats are: .csv, .tsv, .txt, .xls, .xlsx, .mat, .npy"
+        "Supported formats are: .csv, .tsv, .txt, .xls, .xlsx, .npy"
     )
 
 
@@ -257,38 +254,6 @@ def _load_labels_table(path, suffix):
 
     labels = df.iloc[:, -1]
     return labels.astype(str).tolist()
-
-
-def _load_mat_labels(path):
-    """Load labels from a MATLAB .mat file."""
-
-    data = loadmat(path)
-    variables = {
-        key: value
-        for key, value in data.items()
-        if not key.startswith("__")
-    }
-
-    label_arrays = {
-        key: value
-        for key, value in variables.items()
-        if isinstance(value, np.ndarray)
-    }
-
-    if len(label_arrays) == 0:
-        raise ValueError("No label array found in .mat file.")
-
-    if len(label_arrays) > 1:
-        raise ValueError(
-            "Multiple arrays found in .mat file. "
-            "Please load the desired variable manually or save labels "
-            "separately.\n"
-            f"Available arrays: {list(label_arrays.keys())}"
-        )
-
-    arr = next(iter(label_arrays.values())).squeeze()
-    return arr.astype(str).tolist()
-
 
 def load_color_palette(obj):
     """
