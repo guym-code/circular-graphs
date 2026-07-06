@@ -100,7 +100,10 @@ def load_matrix(
                 "Supported formats are: .csv, .xls, .xlsx, .mat, .npy"
             )
 
+    mat = np.asarray(mat, dtype=float)
     np.fill_diagonal(mat, 0.0)
+
+    validate_matrix_value_range(mat)
 
     return mat
 
@@ -144,7 +147,12 @@ def _load_mat_matrix(
 
     return next(iter(matrices.values()))
 
+def validate_matrix_value_range(mat: np.ndarray) -> None:
+    """Validate that connectivity values are in the expected [-1, 1] range."""
 
+    if np.any(mat < -1) or np.any(mat > 1):
+        raise ValueError("Connectivity matrix values must be between -1 and 1.")
+    
 def load_labels(
     obj: None | str | Path | list | tuple | np.ndarray,
 ) -> list[str] | None:
