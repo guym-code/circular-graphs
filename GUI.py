@@ -16,16 +16,19 @@ class CircularGraphGUI:
     def __init__(self):
         # Init variables
         self.browse_button_txt = 'Browse'
+
         self.title_font = ('Calibri Light', 20, 'bold')
         self.subtitle_font = ('Calibri Light', 14, 'bold')
         self.body_font = ('Calibri Light', 10)
-        self.txt_color = 'black'
         self.help_window_titles = ('Calibri Light', 10, 'bold')
+        self.txt_color = 'black'
+        
         self.anchor = 'nw'
         self.combox_state = 'readonly'
+        self.help_window_justify = 'left'
+
         self.center_color = '#F6F7FC'
         self.side_color = '#EDF4FC'
-        self.help_window_justify = 'left'
 
         # Create window
         self.root = tk.Tk()
@@ -145,7 +148,7 @@ class CircularGraphGUI:
         self.threshold_entry_2 = tk.Entry(self.root, width=10)
 
         # Create Radius part
-        self.canvas.create_text(20, 380, text='Choose radius size [1,5]:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.canvas.create_text(20, 380, text='Choose radius size [1,10]:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
         self.radius = self.create_entry(10, 200, 380)
 
         # Create circular graph file attributes
@@ -950,7 +953,6 @@ class CircularGraphGUI:
             self.threshold_entry_1.place_forget()
             self.threshold_label_2.place_forget()
             self.threshold_entry_2.place_forget()
-<<<<<<< HEAD
 
     
     def get_threshold(self):
@@ -979,9 +981,6 @@ class CircularGraphGUI:
         
         return params
             
-=======
-                
->>>>>>> acd214b6ed582f6651f24fd1b36168068d30624a
 
     def plot_circular_graph(self):
         self.attributes = {
