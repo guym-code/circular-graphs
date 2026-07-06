@@ -64,31 +64,37 @@ def load_matrix(matrix, variable=None):
     """
 
     if isinstance(matrix, np.ndarray):
-        return matrix
+        mat = np.asarray(matrix, dtype=float)
 
-    path = Path(matrix)
+    else:
+        path = Path(matrix)
 
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
 
-    suffix = path.suffix.lower()
+        suffix = path.suffix.lower()
 
-    if suffix == ".csv":
-        return pd.read_csv(path, header=None).to_numpy()
+        if suffix == ".csv":
+            mat = pd.read_csv(path, header=None).to_numpy(dtype=float)
 
-    if suffix in (".xls", ".xlsx"):
-        return pd.read_excel(path, header=None).to_numpy()
+        elif suffix in (".xls", ".xlsx"):
+            mat = pd.read_excel(path, header=None).to_numpy(dtype=float)
 
-    if suffix == ".npy":
-        return np.load(path)
+        elif suffix == ".npy":
+            mat = np.load(path)
 
-    if suffix == ".mat":
-        return _load_mat_matrix(path, variable)
+        elif suffix == ".mat":
+            mat = _load_mat_matrix(path, variable)
 
-    raise ValueError(
-        f"Unsupported file type '{suffix}'. "
-        "Supported formats are: .csv, .xls, .xlsx, .mat, .npy"
-    )
+        else:
+            raise ValueError(
+                f"Unsupported file type '{suffix}'. "
+                "Supported formats are: .csv, .xls, .xlsx, .mat, .npy"
+            )
+
+    np.fill_diagonal(mat, 0.0)
+
+    return mat
 
 
 def _load_mat_matrix(path, variable=None):
