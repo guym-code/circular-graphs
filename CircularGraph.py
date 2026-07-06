@@ -116,7 +116,7 @@ class CircularGraph:
             sec_label_font: Font family for group labels/legend, or None for default (taken from Matplotlib).
             sec_label_size: Font size (points) for group labels/legend.
             edge_color_method: Determine how to choose edge colors.
-                "Uniform": Same color for all edges (default - Black)
+                "Uniform": Same color for all edges (default - Gray)
                 "PositiveNegative": Color is based on correlation direction (default - Pos=Red, Neg=Blue).
                 "Node": Color is based on the sec_label color of the lower-indexed node out of the two.
                 "Nodes": Color is a gradient between the two node sec_label colors.
