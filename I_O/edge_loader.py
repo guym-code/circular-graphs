@@ -2,10 +2,11 @@ import ast
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 
-def parse_edge(item):
+def parse_edge(item: object) -> tuple[int, int]:
     """
     Parse a single edge definition into a pair of ROI indices.
 
@@ -55,41 +56,27 @@ def parse_edge(item):
 
     raise ValueError(f"Could not parse edge definition: {item!r}")
 
-
-def load_edge_list_matrix_csv(path):
+def load_edge_list(
+    data: np.ndarray | str | Path,
+) -> tuple[list[tuple[int, int]], np.ndarray]:
     """
-    Load an edge-list connectivity table from CSV or Excel.
+    Load an edge-list representation.
 
     Parameters
     ----------
-    path : str | pathlib.Path
-        Path to an edge-list file.
+    data : np.ndarray | str | pathlib.Path
+        One of:
 
-        Expected file structure:
-
-        - Row 0 contains edge definitions, for example:
-          "(1,2)", "(1,3)", "(2,3)", ...
-        - Rows 1 onward contain edge values.
-        - Non-edge columns in the first row, such as subject IDs,
-          are ignored automatically.
-
-        Supported formats:
-
-        - .csv
-        - .xls
-        - .xlsx
+        - a NumPy array,
+        - a path to a .csv, .xls, .xlsx, .mat or .npy file.
 
     Returns
     -------
     edge_index : list[tuple[int, int]]
-        List of ROI pairs defining the edges. ROI indices are expected
-        to be 1-based.
+        List of ROI pairs.
 
-    data : np.ndarray
-        Numeric edge-value matrix with shape:
-
-        - (n_subjects, n_edges), if multiple rows are present
-        - (1, n_edges), if a single data row is present
+    edge_values : np.ndarray
+        Edge values with shape (n_subjects, n_edges).
 
     Raises
     ------
@@ -97,69 +84,93 @@ def load_edge_list_matrix_csv(path):
         If the supplied file does not exist.
 
     ValueError
-        If the file type is unsupported or no valid edge definitions
-        are found in the first row.
+        If the input type or file format is unsupported.
     """
 
-    path = Path(path)
+    # ------- already loaded edges list -------
+    if isinstance(data, np.ndarray):
+        edge_values = np.asarray(data, dtype=float)
+
+        if edge_values.ndim == 1:
+            edge_values = edge_values[np.newaxis, :]
+
+        edge_index = infer_edge_index_from_n_cols(edge_values.shape[1])
+        return edge_index, edge_values
+
+
+    # ------------ Path to file ------------
+    path = Path(data)
 
     if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+        raise FileNotFoundError(path)
 
     suffix = path.suffix.lower()
 
     if suffix == ".csv":
         df = pd.read_csv(path, header=0, encoding="utf-8-sig", low_memory=False)
+        return dataframe_to_edge_list(df, path)
 
-        try:
-            edge_index = [parse_edge(col) for col in df.columns[1:]]
-            edge_values = df.iloc[:, 1:].astype(float).to_numpy()
-            return edge_index, edge_values
+    if suffix in (".xls", ".xlsx"):
+        df = pd.read_excel(path, header=0)
+        return dataframe_to_edge_list(df, path)
 
-        except ValueError:
-            df = pd.read_csv(path, header=None, encoding="utf-8-sig", low_memory=False)
+    if suffix == ".npy":
+        arr = np.load(path)
+        edge_index = infer_edge_index_from_n_cols(arr.shape[1] - 1)
+        edge_values = arr[:, 1:].astype(float)
+        return edge_index, edge_values
 
-            n_edge_cols = df.shape[1] - 1
+    if suffix == ".mat":
+        raise NotImplementedError(".mat loading not implemented yet")
 
-            edge_index = infer_edge_index_from_n_cols(n_edge_cols)
-            edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+    raise ValueError(f"Unsupported file type: {suffix}")
 
-            return edge_index, edge_values
+def dataframe_to_edge_list(
+    df: pd.DataFrame,
+    path: str | Path | None = None,
+) -> tuple[list[tuple[int, int]], np.ndarray]:
+    """
+    Convert a dataframe into edge_index and edge_values.
 
-    elif suffix in (".xls", ".xlsx"):
-        df = pd.read_excel(path, header=None)
+    Accepts either
 
-    else:
-        raise ValueError(
-            f"Unsupported file type '{suffix}'. "
-            "Supported formats are: .csv, .xls, .xlsx"
-        )
+    1. edge names in the header
+    2. no edge names (infers from number of columns)
+    """
 
-    edge_index = []
-    valid_cols = []
+    try:
+        edge_index = [parse_edge(col) for col in df.columns[1:]]
+        edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+        return edge_index, edge_values
 
-    for col, item in enumerate(df.iloc[0].values):
-        if pd.isna(item):
-            continue
+    except ValueError:
+        pass
 
-        try:
-            edge = parse_edge(item)
+    # Reload without header if we came from a file
+    if path is not None:
+        suffix = path.suffix.lower()
 
-        except ValueError:
-            continue
+        if suffix == ".csv":
+            df = pd.read_csv(
+                path,
+                header=None,
+                encoding="utf-8-sig",
+                low_memory=False,
+            )
 
-        edge_index.append(edge)
-        valid_cols.append(col)
+        else:
+            df = pd.read_excel(path, header=None)
 
-    if len(edge_index) == 0:
-        raise ValueError("No edge definitions found in the first row.")
+    n_edge_cols = df.shape[1] - 1
 
-    data = df.iloc[1:, valid_cols].to_numpy(dtype=float)
+    edge_index = infer_edge_index_from_n_cols(n_edge_cols)
+    edge_values = df.iloc[:, 1:].astype(float).to_numpy()
 
-    return edge_index, data
+    return edge_index, edge_values
 
-
-def infer_edge_index_from_n_cols(n_edge_cols):
+def infer_edge_index_from_n_cols(
+    n_edge_cols: int,
+) -> list[tuple[int, int]]:
     """
     Infer edge indices from the number of edge columns.
 
