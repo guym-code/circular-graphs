@@ -1,5 +1,5 @@
 # Imports
-#import CircularGraph
+import CircularGraph as cg
 from Plotting import defaults
 
 import tkinter as tk
@@ -72,8 +72,8 @@ class CircularGraphGUI:
         self.edges_rb.place(x=397, y=145)
 
         # Create Options and entry for atlas
-        self.canvas.create_text(20, 170, text='Choose Atlas or labels file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
-        atlas_1_options = ['Choose an Atlas', 'Multi-Modal Parcellation (MMP)', 'Schaefer 100', 'Schaefer 400', 'Schaefer 600', 'Schaefer 1000', 'Other']
+        self.canvas.create_text(20, 170, text='Choose atlas or labels file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        atlas_1_options = ['Choose an atlas', 'Multi-Modal Parcellation (MMP)', 'Schaefer 100', 'Schaefer 400', 'Schaefer 600', 'Schaefer 1000', 'Other']
         choice_change_args_first = ('first', 400, 172, 690, 165)
         self.atlas_1_choice, self.other_1_entry, self.other_1_browse_button = self.create_multi_options_other(atlas_1_options, 27, 200, 170, 45, 'Enter path here..', self.browse_action, self.clear_placeholder, self.restore_placeholder, self.choice_change, choice_change_args_first)
 
@@ -109,7 +109,7 @@ class CircularGraphGUI:
         self.edge_color_choice = self.create_combox(edge_color_options, 20, 200, 327)
 
         help_dict = {
-            'title': ['Uniform', 'PositiveNegative', 'Node', 'Nodes'],
+            'title': edge_color_options,
             'body': ['All edges are displayed using the same color.', 
                      'Positive edges are colored red and negative edges are \ncolored blue.',
                      'Each edge is colored according to the color of the lower \nindexed node.',
@@ -127,7 +127,7 @@ class CircularGraphGUI:
         self.threshold_choice.bind('<<ComboboxSelected>>', self.update_threshold_entries)
         
         help_dict = {
-            'title': ['Not thresholded', 'Weighted Average', 'Positive Negative Val', 'Positive Negative Percentile'],
+            'title': threshold_options,
             'body': ['Show all edges.', 
                      'Display only edges connected to nodes whose average \nabsolute edge weight is greater than the specified \nthreshold (exclusive). \n Range: 0–1.',
                      'Display only edges whose weight is greater than the \nspecified positive threshold or less than the specified \nnegative threshold (exclusive). \nPositive range: 0–1. \nNegative range: –1–0.',
@@ -300,7 +300,7 @@ class CircularGraphGUI:
 
 
     def get_atlas(self, atlas_getter, other_getter):
-        if atlas_getter not in ('Other', 'Choose an Atlas'):
+        if atlas_getter not in ('Other', 'Choose an atlas', 'Choose a file'):
             return atlas_getter
         elif atlas_getter == 'Other':
             return other_getter
@@ -361,26 +361,24 @@ class CircularGraphGUI:
         self.attributes['first_labels_file'] = self.get_atlas(self.atlas_1_choice.get(), self.other_1_entry.get().strip())
         self.attributes['secondary_labels_file'] = self.get_atlas(self.atlas_2_choice.get(), self.other_2_entry.get().strip())
 
-        print(self.attributes)
+        cg_object = cg.CircularGraph(
+                    mat_path=self.attributes['mat_path'],
+                    mat_type=self.attributes['mat_type'],
+                    labels=self.attributes['first_labels_file'],
+                    secondary_labels=self.attributes['secondary_labels_file'],
+                    color_palette=self.attributes['color_palette']
+                    )
 
-        # cg_object = CircularGraph(
-        #             mat_path=self.attributes['mat_path'],
-        #             mat_type=self.attributes['mat_type'],
-        #             labels=self.attributes['first_labels_file'],
-        #             secondary_labels=self.attributes['secondary_labels_file'],
-        #             color_palette=self.attributes['color_palette']
-        #             )
+        cg_object.plot(label=self.attributes['show_first_labels'],
+                       sec_label=self.attributes['show_second_labels'],
+                       edge_color_method=self.attributes['edge_color_method']
+        )
 
-        # cg_object.plot(label=self.attributes['show_first_labels'],
-        #                sec_label=self.attributes['show_second_labels'],
-        #                edge_color_method=self.attributes['edge_color_method']
-        # )
+        cg_object.show()
 
-        # cg_object.show()
-
-        # cg_object.savegraph(fname=self.attributes['output_file'],
-        #                     format=self.attributes['output_format']
-        # )
+        cg_object.savegraph(fname=self.attributes['output_file'],
+                            format=self.attributes['output_format']
+        )
 
 
 if __name__ == '__main__':
