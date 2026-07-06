@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from typing import Callable, Optional
 
 import webbrowser
 
@@ -154,62 +155,309 @@ class CircularGraphGUI:
 
         self.done_button = self.create_button('Done', self.plot_circular_graph, 370, 460)
     
+    
+    def create_entry(self, width: int, x: int, y: int) -> tk.Entry:
+        """Create and place a text entry widget.
 
-    def create_entry(self, width, x, y):
+        Parameters
+        ----------
+        width : int
+            Width of the entry widget.
+        x : int
+            Horizontal position.
+        y : int
+            Vertical position.
+
+        Returns
+        -------
+        tk.Entry
+            The created entry widget.
+        """
         entry = tk.Entry(self.root, width=width)
         entry.place(x=x, y=y)
 
         return entry
-    
 
-    def create_button(self, txt, cmd, x, y, width = None, args=None):
-        button = tk.Button(self.root, text=txt, command=lambda: cmd(*args) if args else cmd(), width=width)
+    
+    def create_button(
+        self,
+        txt: str,
+        cmd: Callable,
+        x: int,
+        y: int,
+        width: Optional[int] = None,
+        args: Optional[tuple] = None
+    ) -> tk.Button:
+        """Create and place a button widget.
+
+        Parameters
+        ----------
+        txt : str
+            Text displayed on the button.
+        cmd : Callable
+            Function executed when the button is clicked.
+        x : int
+            Horizontal position of the button.
+        y : int
+            Vertical position of the button.
+        width : int, optional
+            Width of the button in characters. If ``None``, the default button width is used.
+        args : tuple, optional
+            Arguments passed to the command function. If ``None``, the command is
+            called without arguments.
+
+        Returns
+        -------
+        tk.Button
+            The created button widget.
+        """
+        button = tk.Button(
+            self.root,
+            text=txt,
+            command=lambda: cmd(*args) if args else cmd(),
+            width=width
+        )
         button.place(x=x, y=y)
 
         return button
     
 
-    def create_combox(self, options, width, x, y):
-        choice = ttk.Combobox(self.root, values=options, state=self.combox_state, width=width)
+    def create_combox(
+            self, 
+            options: list, 
+            width: int, 
+            x: int, 
+            y: int
+    ) -> ttk.Combobox:
+        """Create and place a read-only combobox widget.
+
+        Parameters
+        ----------
+        options : list
+            List of values displayed in the combobox.
+        width : int
+            Width of the combobox in characters.
+        x : int
+            Horizontal position of the combobox.
+        y : int
+            Vertical position of the combobox.
+
+        Returns
+        -------
+        ttk.Combobox
+            The created combobox widget with the first option selected by default.
+        """
+        choice = ttk.Combobox(
+            self.root, 
+            values=options, 
+            state=self.combox_state, 
+            width=width
+        )
         choice.place(x=x, y=y)
         choice.current(0)
 
         return choice
     
+    
+    def create_checkbuton(
+            self, 
+            txt: str, 
+            cmd: Callable, 
+            x: int, 
+            y: int
+    ) -> tuple[tk.BooleanVar, tk.Checkbutton]:
+        """Create and place a checkbutton widget.
 
-    def create_checkbuton(self, txt, cmd, x, y):
+        Parameters
+        ----------
+        txt : str
+            Text displayed next to the checkbutton.
+        cmd : Callable
+            Function executed when the checkbutton state changes.
+        x : int
+            Horizontal position of the checkbutton.
+        y : int
+            Vertical position of the checkbutton.
+
+        Returns
+        -------
+        tuple
+            A tuple containing:
+
+            - tk.BooleanVar
+                Variable associated with the checkbutton state.
+            - tk.Checkbutton
+                The created checkbutton widget.
+        """
         bool_var = tk.BooleanVar()
-        cb = tk.Checkbutton(self.root, text=txt, variable=bool_var, bg=self.side_color, command=lambda: cmd(txt))
+        cb = tk.Checkbutton(
+            self.root,
+            text=txt,
+            variable=bool_var, 
+            bg=self.side_color, 
+            command=lambda: cmd(txt)
+        )
         cb.place(x=x, y=y)
 
-        return bool_var, cb
+        return bool_var, cb    
     
+       
+    def create_multi_options_other(
+            self, 
+            options: list, 
+            choice_width: int, 
+            x: int, 
+            y: int, 
+            entry_width: int, 
+            other_entry_txt: str, 
+            browse_func: Callable, 
+            clear: Callable, 
+            restore: Callable, 
+            label_change: Callable, 
+            label_change_args: tuple
+    ) -> tuple[ttk.Combobox, tk.Entry, tk.Button]:
+        """Create a combobox with an optional custom file entry.
 
-    def create_multi_options_other(self, options, choice_width, x, y, entry_width, other_entry_txt, browse_func, clear, restore, label_change, label_change_args):
+        The combobox allows the user to select one of the predefined
+        options. If the user selects ``Other``, an entry widget and a
+        browse button are displayed, allowing a custom file to be selected.
+
+        Parameters
+        ----------
+        options : list
+            List of values displayed in the combobox.
+        choice_width : int
+            Width of the combobox in characters.
+        x : int
+            Horizontal position of the combobox.
+        y : int
+            Vertical position of the combobox.
+        entry_width : int
+            Width of the optional entry widget in characters.
+        other_entry_txt : str
+            Placeholder text displayed in the entry widget.
+        browse_func : Callable
+            Function executed when the browse button is clicked.
+        clear : Callable
+            Function executed when the entry widget gains focus to remove
+            the placeholder text.
+        restore : Callable
+            Function executed when the entry widget loses focus to restore
+            the placeholder text.
+        label_change : Callable
+            Function executed when the selected combobox option changes.
+        label_change_args : tuple
+            Additional arguments passed to ``label_change``.
+
+        Returns
+        -------
+        tuple
+            A tuple containing:
+
+            - ttk.Combobox
+                The created combobox widget.
+            - tk.Entry
+                The optional entry widget.
+            - tk.Button
+                The browse button associated with the entry widget.
+        """
         choice_box = self.create_combox(options, choice_width, x, y)
 
         entry = tk.Entry(self.root, width=entry_width)
         entry.insert(0, other_entry_txt)
         entry.config(fg='gray')
-        button = tk.Button(self.root, text=self.browse_button_txt, command=lambda: browse_func(entry))
+        button = tk.Button(
+            self.root, 
+            text=self.browse_button_txt, 
+            command=lambda: browse_func(entry)
+        )
         entry.bind('<FocusIn>', lambda event: clear(event, entry))
         entry.bind('<FocusOut>', lambda event: restore(event, entry))
 
-        choice_box.bind('<<ComboboxSelected>>', lambda event: label_change(event, choice_box, entry, button, *label_change_args))
+        choice_box.bind(
+            '<<ComboboxSelected>>', 
+            lambda event: label_change(
+                event, 
+                choice_box, 
+                entry, 
+                button, 
+                *label_change_args
+            )
+        )
 
         return choice_box, entry, button
+    
 
+    def check_secondary_input(self) -> bool:
+        """Validate the secondary labeling input.
 
-    def check_secondary_input(self):
-        if (self.color_var.get() or self.grouping_var.get()) and self.atlas_2_choice.get() == 'Choose a file':
-            self.warning_label.config(text='Please choose a secondary label file.')
+        Checks whether a secondary label file has been selected when either
+        node coloring or grouping is enabled. If the required file is
+        missing, a warning message is displayed.
+
+        Returns
+        -------
+        bool
+            ``True`` if the current secondary labeling configuration is
+            valid, otherwise ``False``.
+        """
+        if (
+            self.color_var.get() or self.grouping_var.get()
+        ) and self.atlas_2_choice.get() == 'Choose a file':
+            self.warning_label.config(
+                text='Please choose a secondary label file.'
+            )
             return False
 
         self.warning_label.config(text='')
         return True
 
+    
+    def choice_change(
+        self,
+        event,
+        label: ttk.Combobox,
+        entry: tk.Entry,
+        button: tk.Button,
+        level: str,
+        x_entry: int,
+        y_entry: int,
+        x_button: int,
+        y_button: int
+    ) -> None:
+        """Update the GUI when the selected combobox option changes.
 
-    def choice_change(self, event, label, entry, button, level, x_entry, y_entry, x_button, y_button):
+        Displays or hides the custom entry widget and its associated browse
+        button depending on whether the user selects ``Other``. If the
+        secondary label selection is modified, the secondary input is also
+        validated.
+
+        Parameters
+        ----------
+        event
+            Combobox selection event.
+        label : ttk.Combobox
+            Combobox whose selected option has changed.
+        entry : tk.Entry
+            Entry widget used for specifying a custom file path.
+        button : tk.Button
+            Browse button associated with the entry widget.
+        level : str
+            Indicates whether the modified combobox corresponds to the
+            first or second labeling level.
+        x_entry : int
+            Horizontal position of the entry widget.
+        y_entry : int
+            Vertical position of the entry widget.
+        x_button : int
+            Horizontal position of the browse button.
+        y_button : int
+            Vertical position of the browse button.
+
+        Returns
+        -------
+        None
+        """
         if label.get() == 'Other':
             entry.place(x=x_entry, y=y_entry)
             button.place(x=x_button, y=y_button)
@@ -220,21 +468,77 @@ class CircularGraphGUI:
         
         if level == 'second':
             self.check_secondary_input()
-        
+      
 
-    def clear_placeholder(self, event, other_entry):
+    def clear_placeholder(
+        self,
+        event,
+        other_entry: tk.Entry
+    ) -> None:
+        """Remove the placeholder text from an entry widget.
+
+        Clears the placeholder text and restores the default text color
+        when the entry widget gains focus.
+
+        Parameters
+        ----------
+        event
+            Entry focus event.
+        other_entry : tk.Entry
+            Entry widget containing the placeholder text.
+
+        Returns
+        -------
+        None
+        """
         if other_entry.get() == 'Enter path here..':
             other_entry.delete(0, tk.END)
             other_entry.config(fg=self.txt_color)
 
 
-    def restore_placeholder(self, event, other_entry):
-        if other_entry.get() == "":
+    def restore_placeholder(
+        self,
+        event,
+        other_entry: tk.Entry
+    ) -> None:
+        """Restore the placeholder text in an entry widget.
+
+        Restores the placeholder text and sets the text color to gray
+        when the entry widget loses focus.
+
+        Parameters
+        ----------
+        event
+            Entry focus event.
+        other_entry : tk.Entry
+            Entry widget containing the placeholder text.
+
+        Returns
+        -------
+        None
+        """
+        if other_entry.get() == '':
             other_entry.insert(0, 'Enter path here..')
             other_entry.config(fg='gray')
 
 
-    def update_secondary_options(self, clicked):
+    def update_secondary_options(self, clicked: str) -> None:
+        """Update secondary-label display options.
+
+        Ensures that the secondary-label options behave consistently. If
+        ``None`` is selected, node coloring and grouping are disabled. If
+        ``Color`` is selected, the color palette button is displayed. If
+        only ``Grouping`` is selected, the color palette button is hidden.
+
+        Parameters
+        ----------
+        clicked : str
+            Name of the checkbutton option that was clicked.
+
+        Returns
+        -------
+        None
+        """
         if clicked == 'None' and self.none_var.get():
             self.color_var.set(False)
             self.grouping_var.set(False)
@@ -244,54 +548,204 @@ class CircularGraphGUI:
             if self.color_var.get():
                 self.none_var.set(False)
                 self.color_palette_button.place(x=500, y=300)
-            
+
             elif self.grouping_var.get():
                 self.none_var.set(False)
                 self.color_palette_button.place_forget()
 
         self.check_secondary_input()
 
+    
+    def create_help_window(
+        self,
+        title: str,
+        size: str,
+        background: str,
+        labels_num: int,
+        labels_help_dict: dict
+    ) -> None:
+        """Create and display a help window.
 
-    def create_help_window(self, title, size, background, labels_num, labels_help_dict):
+        Creates a pop-up window containing one or more help topics. Each
+        topic consists of a bold title followed by a descriptive text.
+
+        Parameters
+        ----------
+        title : str
+            Title displayed in the help window.
+        size : str
+            Window dimensions in Tkinter geometry format (e.g., ``'350x260'``).
+        background : str
+            Background color of the help window.
+        labels_num : int
+            Number of help topics to display.
+        labels_help_dict : dict
+            Dictionary containing the help titles and descriptions. The
+            dictionary must contain the keys ``'title'`` and ``'body'``,
+            each mapped to a list of strings.
+
+        Returns
+        -------
+        None
+        """
         window = tk.Toplevel(self.root)
         window.title(title)
         window.geometry(size)
         window.configure(bg=background)
+
         padx_title = 10
         padx_body = 20
-        pady = (10,0)
+        pady = (10, 0)
 
         for i in range(labels_num):
-            tk.Label(window, text=labels_help_dict['title'][i], font=self.help_window_titles, bg=self.side_color).pack(anchor=self.anchor, padx=padx_title, pady=pady)
-            tk.Label(window, text=labels_help_dict['body'][i], justify=self.help_window_justify, bg=self.side_color).pack(anchor=self.anchor, padx=padx_body)
+            tk.Label(
+                window,
+                text=labels_help_dict['title'][i],
+                font=self.help_window_titles,
+                bg=self.side_color
+            ).pack(
+                anchor=self.anchor,
+                padx=padx_title,
+                pady=pady
+            )
 
+            tk.Label(
+                window,
+                text=labels_help_dict['body'][i],
+                justify=self.help_window_justify,
+                bg=self.side_color
+            ).pack(
+                anchor=self.anchor,
+                padx=padx_body
+            )
 
-    def select_color_palette(self):
+    def select_color_palette(self) -> None:
+        """Create a window for selecting a color palette.
+
+        Opens a dialog that allows the user to specify a CSV file
+        containing a custom color palette. The dialog also provides access
+        to an example color palette file and allows the selected file to be
+        saved.
+
+        Returns
+        -------
+        None
+        """
         self.color_window = tk.Toplevel(self.root)
         self.color_window.title('Color palette')
         self.color_window.geometry('480x100')
         self.color_window.configure(bg=self.side_color)
 
-        tk.Label(self.color_window, text='Path to color palette CSV:', bg=self.side_color).grid(row=0, column=0, sticky=self.anchor, padx=(10, 0), pady=2)
+        tk.Label(
+            self.color_window,
+            text='Path to color palette CSV:',
+            bg=self.side_color
+        ).grid(
+            row=0,
+            column=0,
+            sticky=self.anchor,
+            padx=(10, 0),
+            pady=2
+        )
 
-        self.color_palette_entry = tk.Entry(self.color_window, width=40)
-        self.color_palette_entry.grid(row=0, column=0, sticky=self.anchor, padx=(160, 0), pady=2)
+        self.color_palette_entry = tk.Entry(
+            self.color_window,
+            width=40
+        )
+        self.color_palette_entry.grid(
+            row=0,
+            column=0,
+            sticky=self.anchor,
+            padx=(160, 0),
+            pady=2
+        )
 
-        tk.Button(self.color_window, text=self.browse_button_txt, command=lambda: self.browse_action(self.color_palette_entry)).grid(row=0, column=0, sticky=self.anchor, padx=(410, 0), pady=2)
-        tk.Button(self.color_window, text='Example File', command=self.open_example_csv).grid(row=1, column=0, sticky=self.anchor, padx=(210, 0), pady=2)
-        tk.Button(self.color_window, text='Done', command=self.save_color_palette).grid(row=2, column=0, sticky=self.anchor, padx=(227, 0), pady=2)
+        tk.Button(
+            self.color_window,
+            text=self.browse_button_txt,
+            command=lambda: self.browse_action(self.color_palette_entry)
+        ).grid(
+            row=0,
+            column=0,
+            sticky=self.anchor,
+            padx=(410, 0),
+            pady=2
+        )
+
+        tk.Button(
+            self.color_window,
+            text='Example File',
+            command=self.open_example_csv
+        ).grid(
+            row=1,
+            column=0,
+            sticky=self.anchor,
+            padx=(210, 0),
+            pady=2
+        )
+
+        tk.Button(
+            self.color_window,
+            text='Done',
+            command=self.save_color_palette
+        ).grid(
+            row=2,
+            column=0,
+            sticky=self.anchor,
+            padx=(227, 0),
+            pady=2
+        )
     
 
     def save_color_palette(self):
+        """Save the selected color palette path and close the dialog.
+
+        Retrieves the file path entered in the color palette selection
+        window, stores it, and closes the dialog.
+
+        Returns
+        -------
+        None
+        """
         self.color_palette_path = self.color_palette_entry.get().strip()
         self.color_window.destroy()
     
 
-    def open_example_csv(self):
-        webbrowser.open('https://github.com/guym-code/circular-graphs/blob/main/Color%20Palettes/yeo_7_network_colors.csv')
+    def open_example_csv(self) -> None:
+        """Open an example color palette file.
+
+        Opens the default web browser and navigates to an example color
+        palette CSV file hosted in the project's GitHub repository.
+
+        Returns
+        -------
+        None
+        """
+        webbrowser.open(
+            'https://github.com/guym-code/circular-graphs/blob/main/'
+            'Color%20Palettes/yeo_7_network_colors.csv'
+        )
 
 
-    def browse_action(self, entry):
+
+    def browse_action(
+        self,
+        entry: tk.Entry
+    ) -> None:
+        """Open a file browser and update an entry widget.
+
+        Opens a file selection dialog. If the user selects a file, its path
+        is inserted into the specified entry widget.
+
+        Parameters
+        ----------
+        entry : tk.Entry
+            Entry widget that receives the selected file path.
+
+        Returns
+        -------
+        None
+        """
         filename = filedialog.askopenfilename()
 
         if filename:
@@ -306,6 +760,39 @@ class CircularGraphGUI:
             return other_getter
         
         return None
+    
+    def get_atlas(
+        self,
+        atlas_getter: str,
+        other_getter: str
+    ) -> Optional[str]:
+        """Return the selected atlas or custom labels file.
+
+        Returns the selected predefined atlas name. If the user selected
+        ``Other``, the path entered by the user is returned instead. If no
+        valid selection has been made, ``None`` is returned.
+
+        Parameters
+        ----------
+        atlas_getter : str
+            Selected atlas option from the combobox.
+        other_getter : str
+            Path entered for a custom atlas or labels file.
+
+        Returns
+        -------
+        Optional[str]
+            Selected atlas name, custom file path, or ``None`` if no valid
+            selection was made.
+        """
+        if atlas_getter not in ('Other', 'Choose an atlas', 'Choose a file'):
+            return atlas_getter
+
+        elif atlas_getter == 'Other':
+            return other_getter
+
+        return None
+    
     
 
     def get_second_label_presentations(self, color_var, grouping_var):
@@ -330,6 +817,8 @@ class CircularGraphGUI:
 
         if method == 'Weighted Average':
             self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Weight [0,1]:', 440, 352, 510, 352)
+            self.threshold_label_2.place_forget()
+            self.threshold_entry_2.place_forget()
 
         elif method == 'Positive Negative Val':
             self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,1]:', 440, 352, 520, 352)
