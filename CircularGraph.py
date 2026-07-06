@@ -89,7 +89,55 @@ class CircularGraph:
         self.mask = np.ones(self.mat.shape, dtype=bool)
 
         self._validate()
-        
+
+    def apply_threshold(
+        self,
+        method: Optional[str] = None,
+        **params,
+    ) -> np.ndarray:
+        """Compute and store self.mask for one threshold method at a time.
+
+        This is the CircularGraph-bound counterpart to
+        Thresholds.thresholds.apply_threshold(mat, method, **params) --
+        same method names and params, just applied to self.mat and stored
+        on self.mask instead of returned as a standalone ThresholdResult.
+        Calling it again with a different method fully replaces the
+        previous mask; it never combines two methods.
+
+        Args:
+            method: One of Thresholds.thresholds.VALID_THRESHOLD_METHODS
+                ("weighted_average", "positive_negative_value",
+                "positive_negative_percentile_value"), or None (the
+                default) to clear thresholding and keep every edge.
+            **params: Keyword parameters for the chosen method's
+                constructor -- see
+                Thresholds.thresholds.THRESHOLD_PARAM_SCHEMAS[method] for
+                which names each method expects (e.g. value= for
+                weighted_average, positive_value=/negative_value= for
+                positive_negative_value).
+
+        Returns:
+            The new self.mask (n x n boolean array), for convenience.
+
+        Raises:
+            ValueError: If method is not None and not a recognized
+                method, or if params doesn't match what that method's
+                constructor accepts.
+        """
+        if method is None:
+            self.mask = np.ones(self.mat.shape, dtype=bool)
+            return self.mask
+
+        if method not in thresholds.VALID_THRESHOLD_METHODS:
+            raise ValueError(
+                f"Unknown threshold method: {method!r}, expected None or one "
+                f"of {thresholds.VALID_THRESHOLD_METHODS}"
+            )
+
+        result = thresholds.apply_threshold(self.mat, method, **params)
+        self.mask = result.edge_mask
+        return self.mask
+
     def plot(
         self,
         label: bool = defaults.LABEL,
