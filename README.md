@@ -1,4 +1,4 @@
-# [Project Name]
+# NeuroCircles
 
 ## Shared Documentation
 
@@ -200,7 +200,7 @@ The software allows users to customize the appearance and organization of the co
 
 ## Node Labels
 
-- Display or hide primary ROI labels.
+- Display or hide primary ROI labels, customize font and font size
 - Choose predefined atlas labels or custom label files.
 
 ## Secondary Labels
@@ -208,20 +208,25 @@ The software allows users to customize the appearance and organization of the co
 Users can choose how secondary labels are presented:
 
 - No secondary labels
-- Node coloring
+- Node coloring (With secondary label legend)
 - Group brackets
-- Combined node coloring and group brackets
 
 A custom color palette can also be provided for secondary-label groups.
+Custom font and font size can be specified for secondary labels.
 
 ## Edge Appearance
 
 Choose one of four edge-coloring methods:
 
-- **Uniform** – all edges share the same color.
-- **Positive/Negative** – positive and negative edges are colored differently.
-- **Node** – each edge is colored according to one of its connected nodes.
+- **Uniform** – all edges share the same color, can be customized.
+- **Positive/Negative** – positive and negative edges are colored differently, colors can be customized.
+- **Node** – each edge is colored according to its lower-indexed connected nodes.
 - **Nodes** – edges are displayed as a gradient between the colors of the connected nodes.
+
+## Graph
+Graph layout can be customized, including:
+- **Hemisphere flip** - Indices of nodes after the midway point are flipped, to create hemisphere symmetry. Can be altered.
+- **Radius** - Graph radius can be adjusted to fit the node amount, change spacing between nodes, etc.
 
 ## Thresholding
 
