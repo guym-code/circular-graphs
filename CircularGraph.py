@@ -6,13 +6,14 @@ import numpy as np
 from matplotlib.figure import Figure
 
 from I_O.edge_list2mat import edge_list_to_matrix
-from I_O.edge_loader import load_edge_list_matrix_csv
+from I_O.edge_loader import load_edge_list
 from I_O.loader import (
     load_color_palette,
     load_labels,
     load_matrix,
     load_secondary_labels,
 )
+
 from Plotting import colors, defaults, layout, renderer
 from Plotting.colors import ColorInput, PositiveNegativeInput
 
@@ -30,7 +31,7 @@ class CircularGraph:
         subject_idx=0
     ):
         if mat_type == "edge_list":
-            edge_index, edge_values = load_edge_list_matrix_csv(mat_path)
+            edge_index, edge_values = load_edge_list(mat_path)
             self.mat = edge_list_to_matrix(edge_values, edge_index, subject_idx)
 
         elif mat_type == "matrix":
