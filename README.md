@@ -150,7 +150,6 @@ Labels may be supplied as:
 - TXT (`.txt`)
 - Excel (`.xls`, `.xlsx`)
 - NumPy (`.npy`)
-- MATLAB (`.mat`)
 
 For table-based files, the **last column** is interpreted as the label column.
 
