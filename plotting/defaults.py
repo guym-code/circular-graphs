@@ -23,7 +23,7 @@ SAVE_BACKGROUND: str = "#ffffff"  # White
 # Used only when a graph has no secondary_labels, so edge_color_method 'Node'/'Nodes' still has a color to draw from.
 NODE_FALLBACK_COLORMAP: str = "hsv"
 
-NODE_RADIUS: float = 1.0
+NODE_RADIUS: float = 1.5
 # 0.0 = chords bow through the center; 1.0 = straight lines.
 EDGE_CURVATURE: float = 0.0
 EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 4.0)

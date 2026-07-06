@@ -13,6 +13,7 @@ Group = Tuple[str, int, int]
 
 def compute_node_angles(n: int) -> List[float]:
     """Compute evenly spaced node angles around a circle.
+        Needed for determining node label positions
 
     Args:
         n: Number of nodes to place. Non-positive values yield no angles.

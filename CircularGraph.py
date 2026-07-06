@@ -78,7 +78,7 @@ class CircularGraph:
                 "Nodes": Color is a gradient between the two node sec_label colors.
             edge_color: Optional override color(s) for "Uniform" (a single color) or "PositiveNegative"
             (a dict/2-tuple of positive, negative). Ignored for "Node"/"Nodes".
-            radius: Radius of the node circle (default - 1).
+            radius: Radius of the node circle (default - 1.5).
 
         Returns:
             The created matplotlib Figure (also stored as self._fig).
@@ -99,7 +99,7 @@ class CircularGraph:
         secondary_labels = (
             dict(enumerate(self.secondary_labels)) if self.secondary_labels else {}
         )
-        color_scheme = self.color_palette or {}
+        color_palette = self.color_palette or {}
 
         positions = layout.compute_node_positions(n, radius=radius)
         angles = layout.compute_node_angles(n)
@@ -109,7 +109,7 @@ class CircularGraph:
             else []
         )
 
-        node_colors = colors.resolve_node_colors(n, secondary_labels, color_scheme)
+        node_colors = colors.resolve_node_colors(n, secondary_labels, color_palette)
 
         scale = radius / defaults.NODE_RADIUS
         extent = defaults.PLOT_EXTENT * scale
