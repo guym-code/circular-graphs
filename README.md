@@ -245,6 +245,10 @@ Depending on the selected method, users can define one or two threshold values.
 - Specify the output filename.
 - Export figures in **PNG**, **JPEG**, **SVG**, or **PDF** formats.
 
+## GUI
+<img width="1151" height="825" alt="image" src="https://github.com/user-attachments/assets/86d05e9b-25c3-4fb7-8b31-540fa6525566" />
+
+
 # Examples
 
 *To be completed.*
