@@ -50,33 +50,150 @@ This project aims to simplify the creation of circular connectivity graphs by pr
 
 # Input Files
 
-The program accepts several input files for creating and customizing the connectogram.
+The application accepts several optional input files for creating and customizing the connectogram.
 
 ## Connectivity Data
 
-The main input can be either a **connectivity matrix** or an **edge list**.
+The connectivity data is the only required input. It can be supplied either as a **connectivity matrix** or as an **edge list**.
 
-A connectivity matrix should be a square matrix where rows and columns represent brain regions, and each value represents the connection strength between two regions.
+### Supported Formats
 
-An edge list should describe connections between pairs of regions and their corresponding edge weights.
+Connectivity data may be provided as:
+
+- NumPy array
+- CSV (`.csv`)
+- Excel (`.xls`, `.xlsx`)
+- NumPy binary (`.npy`)
+- MATLAB (`.mat`)
+
+---
+
+### Connectivity Matrix
+
+A connectivity matrix must be a square matrix of shape **N × N**, where **N** is the number of regions of interest (ROIs).
+
+Each matrix element represents the connection strength between two regions.
+
+Example:
+
+|     | ROI 1 | ROI 2 | ROI 3 |
+|-----|-------|-------|-------|
+| ROI 1 | 1.0 | 0.42 | -0.18 |
+| ROI 2 | 0.42 | 1.0 | 0.25 |
+| ROI 3 | -0.18 | 0.25 | 1.0 |
+
+The matrix is assumed to be symmetric. Diagonal values are ignored during visualization.
+
+---
+
+### Edge List
+
+Connectivity may alternatively be supplied as an edge list.
+
+Each row represents one subject (or one connectivity matrix), while each column corresponds to one connection between two ROIs.
+
+The first column is assumed to contain subject identifiers (or any non-edge identifier) and is ignored during loading.
+
+Two edge-list formats are supported.
+
+#### 1. Edge names included
+
+The first row contains ROI pairs:
+
+| Subject | (1,2) | (1,3) | (2,3) | ... |
+|---------|------:|------:|------:|----:|
+| 001 | 0.42 | -0.18 | 0.25 | ... |
+
+ROI pairs may be written in any of the following formats:
+
+- `(1,2)`
+- `1,2`
+- `1-2`
+- `1_2`
+
+#### 2. Edge names omitted
+
+If edge names are omitted, the software automatically infers the connectivity structure from the number of columns.
+
+The following layouts are recognized automatically:
+
+- **Upper triangular matrix (without the diagonal)** containing `N(N−1)/2` edge columns.
+- **Complete symmetric matrix** containing `N²` edge columns.
+
+No additional configuration is required.
+
+---
+
+### Symmetric Edge Lists
+
+The edge list may contain either
+
+- only one entry for each connection (e.g. `(1,2)` but not `(2,1)`), or
+- both `(i,j)` and `(j,i)` entries.
+
+When both directions are provided, their values must be identical. Otherwise, an error is raised to prevent inconsistent connectivity matrices.
+
+Diagonal entries such as `(1,1)` are optional and are ignored during visualization.
+
+---
 
 ## ROI Labels
 
-The program supports predefined atlas labels as well as user-provided label files.
+ROI labels define the names displayed around the connectogram.
 
-Label files should contain one label per region, in the same order as the connectivity data.
+Labels may be supplied as:
+
+- a built-in atlas
+- a Python list, tuple, or NumPy array
+- CSV (`.csv`)
+- TSV (`.tsv`)
+- TXT (`.txt`)
+- Excel (`.xls`, `.xlsx`)
+- NumPy (`.npy`)
+- MATLAB (`.mat`)
+
+For table-based files, the **last column** is interpreted as the label column.
+
+Labels must appear in the same order as the ROIs in the connectivity data.
+
+---
 
 ## Secondary Labels
 
-Secondary labels are optional and can be used to group regions by network, hemisphere, anatomical region, or any user-defined category.
+Secondary labels are optional annotations used to group ROIs into higher-level categories such as:
 
-Secondary label files should contain one secondary label for each region, in the same order as the connectivity data.
+- Functional networks
+- Hemispheres
+- Anatomical regions
+- User-defined groups
+
+Secondary labels support the same input formats as ROI labels and must follow the same ROI ordering.
+
+Built-in secondary labels are available for the included Schaefer atlases.
+
+---
 
 ## Color Palette
 
-An optional CSV file can be provided to define colors for secondary labels.
+An optional color palette can be supplied to define colors for secondary-label groups.
 
-Each row should map a secondary-label name to a color. Colors should be specified using hexadecimal (hex) color codes (e.g., `#FF0000`).
+Supported formats:
+
+- CSV (`.csv`)
+- TSV (`.tsv`)
+- TXT (`.txt`)
+- Excel (`.xls`, `.xlsx`)
+
+The file must contain at least two columns:
+
+| Group | Color |
+|-------|-------|
+| Visual | `#4F81BD` |
+| Default | `#C0504D` |
+
+The first row is assumed to contain column headers and is ignored.
+
+Colors should be specified using hexadecimal RGB notation (e.g. `#A450AE`).
 
 # Customization
 
