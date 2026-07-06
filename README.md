@@ -1,5 +1,5 @@
 # NeuroCircles
-![img_3.png](img_3.png)
+![test_graph.png](test_graph.png)
 
 ## Shared Documentation
 
