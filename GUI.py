@@ -1,5 +1,6 @@
 # Imports
 #import CircularGraph
+from Plotting import defaults
 
 import tkinter as tk
 from tkinter import ttk
@@ -7,6 +8,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 
 import webbrowser
+
 
 class CircularGraphGUI:
 
@@ -60,7 +62,7 @@ class CircularGraphGUI:
         # Create connectivity matrix/edge list file input
         self.canvas.create_text(20, 120, text='Path to conn mat/Edges file:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
         self.mat_entry = self.create_entry(50, 200, 120)
-        self.mat_browse_button = self.create_button(self.browse_button_txt, self.browse_action, 530, 117, args=(self.mat_entry))
+        self.mat_browse_button = self.create_button(self.browse_button_txt, self.browse_action, 530, 117, args=(self.mat_entry,))
         
         # Create connectivity matrix file type options
         self.file_type = tk.StringVar(value='')
@@ -307,13 +309,13 @@ class CircularGraphGUI:
     
 
     def get_second_label_presentations(self, color_var, grouping_var):
-        if color_var and grouping_var:
-            return 'ColorBracket'
-        
-        elif self.grouping_var:
+        if grouping_var:
             return 'Bracket'
+        
+        elif color_var:
+            return 'Color'
 
-        return 'Color'
+        return defaults.SEC_LABEL
 
 
     def change_threshold_entry_method(self, label, entry, txt, label_x, label_y, entry_x, entry_y):
@@ -352,7 +354,7 @@ class CircularGraphGUI:
             'show_second_labels': self.get_second_label_presentations(self.color_var.get(), self.grouping_var.get()),
             'color_palette': self.color_palette_path,
             'edge_color_method': self.edge_color_choice.get(),
-            'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}' if self.filename_entry.get().strip() is not None else f'Untitled.{self.format_choice.get()}',
+            'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}' if self.filename_entry.get().strip() is not None else f'{defaults.SAVE_NAME}.{self.format_choice.get()}',
             'output_format': self.format_choice.get()
         }
 
