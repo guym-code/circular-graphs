@@ -13,8 +13,8 @@ from I_O.loader import (
     load_matrix,
     load_secondary_labels,
 )
-from plotting import colors, defaults, layout, renderer
-from plotting.colors import ColorInput, PositiveNegativeInput
+from Plotting import colors, defaults, layout, renderer
+from Plotting.colors import ColorInput, PositiveNegativeInput
 
 VALID_SEC_LABEL_MODES = ("Color", "Bracket", "ColorBracket", "False")
 
