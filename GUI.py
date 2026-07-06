@@ -156,6 +156,29 @@ class CircularGraphGUI:
         self.done_button = self.create_button('Done', self.plot_circular_graph, 370, 460)
     
     
+    def create_entry(self, width: int, x: int, y: int) -> tk.Entry:
+        """Create and place a text entry widget.
+
+        Parameters
+        ----------
+        width : int
+            Width of the entry widget.
+        x : int
+            Horizontal position.
+        y : int
+            Vertical position.
+
+        Returns
+        -------
+        tk.Entry
+            The created entry widget.
+        """
+        entry = tk.Entry(self.root, width=width)
+        entry.place(x=x, y=y)
+
+        return entry
+
+    
     def create_button(
         self,
         txt: str,
