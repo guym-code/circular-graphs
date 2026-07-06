@@ -6,3 +6,6 @@
 # (tests/) to sys.path, not the repo root.
 pythonpath = ["."]
 testpaths = ["tests"]
+markers = [
+    "integration: exercises real data files under Main__Data/ (slower; skips itself if those files aren't present).",
+]
