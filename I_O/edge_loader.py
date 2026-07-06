@@ -34,6 +34,9 @@ def parse_edge(item: object) -> tuple[int, int]:
         If the item cannot be interpreted as an edge definition.
     """
 
+    if item is None:
+        raise ValueError("Could not parse edge definition: None")
+
     item = str(item).strip()
 
     try:
@@ -49,10 +52,13 @@ def parse_edge(item: object) -> tuple[int, int]:
     except (ValueError, SyntaxError):
         pass
 
-    match = re.search(r"(\d+)\D+(\d+)", item)
+    match = re.fullmatch(r"(\d+)\s*[,._-]\s*(\d+)", item)
 
     if match:
-        return int(match.group(1)), int(match.group(2))
+        i, j = int(match.group(1)), int(match.group(2))
+        if i < 1 or j < 1:
+            raise ValueError(f"ROI indices must be 1-based, got {(i, j)}")
+        return i, j
 
     raise ValueError(f"Could not parse edge definition: {item!r}")
 
@@ -132,22 +138,34 @@ def dataframe_to_edge_list(
     """
     Convert a dataframe into edge_index and edge_values.
 
-    Accepts either
-
+    Accepts either:
     1. edge names in the header
-    2. no edge names (infers from number of columns)
+    2. no edge names, inferring edges from number of columns
+
+    Assumes first column is subject/id column and all remaining columns
+    are edge values.
     """
 
-    try:
-        edge_index = [parse_edge(col) for col in df.columns[1:]]
+    def columns_are_valid_edge_headers(columns) -> bool:
+        try:
+            edge_index = [parse_edge(col) for col in columns]
+        except ValueError:
+            return False
+
+        return all(i >= 1 and j >= 1 for i, j in edge_index)
+
+    edge_columns = df.columns[1:]
+
+    if columns_are_valid_edge_headers(edge_columns):
+        edge_index = [parse_edge(col) for col in edge_columns]
         edge_values = df.iloc[:, 1:].astype(float).to_numpy()
         return edge_index, edge_values
 
-    except ValueError:
-        pass
-
-    # Reload without header if we came from a file
+    # Reload without header if this dataframe came from a file.
+    # This preserves the first row, which pandas may have interpreted
+    # as column names during the first header=0 load.
     if path is not None:
+        path = Path(path)
         suffix = path.suffix.lower()
 
         if suffix == ".csv":
@@ -157,7 +175,6 @@ def dataframe_to_edge_list(
                 encoding="utf-8-sig",
                 low_memory=False,
             )
-
         else:
             df = pd.read_excel(path, header=None)
 
