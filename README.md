@@ -1,11 +1,6 @@
 # NeuroCircles
 <img width="3646" height="3646" alt="test_graph" src="https://github.com/user-attachments/assets/7ff0c661-de00-4364-b894-d2062813cb22" />
 
-
-## Shared Documentation
-
-https://docs.google.com/document/d/1a2ZQJTtFH3H57V8p0iG39yFw9OPO3pakU4-5SBe-X4o/edit?usp=sharing
-
 ## Shared Presentation
 
 https://docs.google.com/presentation/d/1jaq3Cncm86KyL8Ov1DoASdZ6KH-fHWH5Bo7b2_KFSHM/edit?usp=sharing
@@ -16,7 +11,7 @@ https://docs.google.com/presentation/d/1jaq3Cncm86KyL8Ov1DoASdZ6KH-fHWH5Bo7b2_KF
 
 Circular connectivity graphs (also known as **connectograms** or **chord diagrams**) are widely used in neuroscience to visualize structural and functional connectivity between brain regions. They provide an intuitive representation of complex brain networks and are commonly featured in neuroimaging studies involving functional MRI (fMRI), diffusion MRI, EEG, MEG, and other connectivity analyses.
 
-Despite their popularity, generating publication-quality connectograms often requires extensive manual customization or familiarity with specialized visualization libraries. Existing tools often require extensive programming expertise, manual customization, or complex configuration, making them difficult to adapt to different datasets, atlases, and visualization styles. Overall, the process is time-consuming for many researchers.
+Despite their popularity, generating publication-quality connectograms often requires extensive manual customization or familiarity with specialized visualization libraries. Existing tools often require extensive programming expertise, manual customization, or complex configuration, making them difficult to adapt to different datasets and visualization styles.
 
 This project aims to simplify the creation of circular connectivity graphs by providing an intuitive Python application with an interactive graphical user interface. Users can import connectivity matrices or edge lists, customize the appearance of nodes and edges, organize regions using atlas-based or custom labels, and export publication-ready figures with minimal effort.
 
@@ -28,18 +23,42 @@ This project aims to simplify the creation of circular connectivity graphs by pr
 - Flexible customization of node labels, colors, edge appearance, and layout.
 - Generates publication-quality circular connectivity visualizations suitable for scientific publications.
 
-# Supported Atlases
-
-- Multi-Modal Parcellation (MMP)
-- Schaefer 100
-- Schaefer 400
-- Schaefer 600
-- Schaefer 1000
-- User-defined atlases
+# GUI
+<img width="1151" height="825" alt="image" src="https://github.com/user-attachments/assets/26a9c77f-4339-4888-968c-6198776b464f" />
 
 # Getting Started
 
-*To be completed.*
+### Prerequisites
+
+Before running the project, ensure that you have:
+
+- **Python 3.10 or later**
+- All required Python packages installed (see `requirements.txt`)
+
+> **Note:** This project was developed and tested using **Python 3.10**. Earlier Python versions are not supported.
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/guym-code/circular-graphs.git
+cd circular-graphs
+```
+
+2. Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Running the Application
+
+Launch the graphical user interface with:
+
+```bash
+python GUI.py
+```
 
 # Usage
 
@@ -49,6 +68,16 @@ This project aims to simplify the creation of circular connectivity graphs by pr
 4. Optionally add secondary labels.
 5. Customize visualization settings.
 6. Generate and export the connectogram.
+7. The generated connectogram is displayed in a Matplotlib window and simultaneously saved to the selected output file.
+
+# Supported Atlases
+
+- Multi-Modal Parcellation (MMP)
+- Schaefer 100
+- Schaefer 400
+- Schaefer 600
+- Schaefer 1000
+- User-defined atlases
 
 # Input Files
 
@@ -246,31 +275,48 @@ Depending on the selected method, users can define one or two threshold values.
 - Specify the output filename.
 - Export figures in **PNG**, **JPEG**, **SVG**, or **PDF** formats.
 
-## GUI
-<img width="1151" height="825" alt="image" src="https://github.com/user-attachments/assets/26a9c77f-4339-4888-968c-6198776b464f" />
 
+## Repository Structure
 
-
-# Examples
-
-*To be completed.*
-
-# Repository Structure
-
-*To be completed.*
-
-# Future Work
-
-*To be completed.*
+```text
+circular-graphs/
+│
+├── I_O/                         # Input/output utilities
+│   ├── loader.py                # Loads connectivity matrices and label files
+│   ├── edge_loader.py           # Loads edge-list files
+│   └── edge_list2mat.py         # Converts edge lists into connectivity matrices
+│
+├── Plotting/                    # Circular graph visualization utilities
+│   ├── renderer.py              # Draws nodes, edges, and labels
+│   ├── layout.py                # Computes node positions and graph layout
+│   ├── colors.py                # Handles node and edge coloring
+│   └── defaults.py              # Default plotting parameters
+│
+├── Thresholds/                  # Thresholding algorithms
+│   ├── thresholds.py            # Thresholding implementations
+│   └── defaults_thresholds.py   # Default threshold parameters
+│
+├── icons/                       # GUI icons and images
+├── Main_Data/                   # Example datasets and label files
+├── tests/                       # Test scripts
+│
+├── CircularGraph.py             # Main circular graph class
+├── GUI.py                       # Graphical user interface
+├── pyproject.toml               # Project configuration                      
+├── requirements.txt             # Required Python packages
+├── LICENSE                      # Software license (MIT)
+└── README.md                    # Project documentation
+```
 
 # Authors
 
-Amit Keinan
-Guy Malka
-Yoav Melamed
-Gilad Shilo
-Tom Zemer
+- Amit Keinan
+- Guy Malka
+- Yoav Melamed
+- Gilad Shilo
+- Tom Zemer
 
 # License
 
-*To be completed.*
+This project is licensed under the MIT License.
+See the LICENSE file for details.
