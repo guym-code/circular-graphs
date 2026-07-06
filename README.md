@@ -1,4 +1,5 @@
 # NeuroCircles
+![img_3.png](img_3.png)
 
 ## Shared Documentation
 
