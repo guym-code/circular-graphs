@@ -11,7 +11,7 @@ SEC_LABEL_FONT: str = "DejaVu Sans"
 SEC_LABEL_SIZE: int = 10
 
 EDGE_COLOR_METHOD: str = "Uniform"
-EDGE_COLOR_UNIFORM: str = "#000000"  # Black
+EDGE_COLOR_UNIFORM: str = "#BBBBBB"  # Black
 EDGE_COLOR_POSITIVE: str = "#ff0000"  # Red
 EDGE_COLOR_NEGATIVE: str = "#0000ff"  # Blue
 
