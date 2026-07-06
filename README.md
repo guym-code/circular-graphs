@@ -266,7 +266,7 @@ Several thresholding methods are available to simplify network visualization:
 - **No thresholding** – display all edges.
 - **Weighted average threshold** – display only edges connected to nodes whose average absolute edge weight is greater than the specified threshold (exclusive).
 - **Positive/negative value threshold** – display only edges whose weight is greater than the specified positive threshold or less than the specified negative threshold (exclusive).
-- **Positive/negative percentile threshold** – display only edges whose weights fall within the selected percentile of the positive or negative edge-weight distribution.
+- **Positive/negative percentile threshold** – display only edges whose percentile rank, computed separately within the positive-weight and negative-weight edges, is greater than the specified percentile cutoff for that side (exclusive).
 
 Depending on the selected method, users can define one or two threshold values.
 
