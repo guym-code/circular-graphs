@@ -17,7 +17,7 @@ from I_O.loader import (
 from Plotting import colors, defaults, layout, renderer
 from Plotting.colors import ColorInput, PositiveNegativeInput
 
-VALID_SEC_LABEL_MODES = ("Color", "Bracket", "ColorBracket", "False")
+VALID_SEC_LABEL_MODES = ("Color", "Bracket", "False")
 
 
 class CircularGraph:
@@ -68,9 +68,8 @@ class CircularGraph:
             label_font: Font family for node labels, or None for default (taken from Matplotlib).
             label_size: Font size (points) for node labels.
             sec_label: Determine the grouping method for the secondary label.
-                "Color": colors nodes by secondary label and shows a legend
+                "Color": shows a legend mapping secondary label to color.
                 "Bracket": draws a bracket + curved label over each group.
-                "ColorBracket": does both (no legend needed).
             sec_label_font: Font family for group labels/legend, or None for default (taken from Matplotlib).
             sec_label_size: Font size (points) for group labels/legend.
             edge_color_method: Determine how to choose edge colors.
@@ -155,7 +154,7 @@ class CircularGraph:
                 ax, angles, node_labels, font=label_font, size=label_size, radius=radius
             )
 
-        if sec_label in ("Bracket", "ColorBracket") and groups:
+        if sec_label == "Bracket" and groups:
             renderer.draw_group_brackets(
                 ax,
                 fig,
