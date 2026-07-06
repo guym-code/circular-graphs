@@ -144,14 +144,18 @@ class CircularGraphGUI:
         self.threshold_label_2 = tk.Label(self.root)
         self.threshold_entry_2 = tk.Entry(self.root, width=10)
 
-        # Create circular graph file attributes
-        self.canvas.create_text(20, 380, text='Output filename:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
-        self.filename_entry = self.create_entry(35, 200, 380)
+        # Create Radius part
+        self.canvas.create_text(20, 380, text='Choose radius size [1,5]:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.radius = self.create_entry(10, 200, 380)
 
-        self.canvas.create_text(485, 382, text='format:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        # Create circular graph file attributes
+        self.canvas.create_text(20, 405, text='Output filename:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
+        self.filename_entry = self.create_entry(35, 200, 405)
+
+        self.canvas.create_text(485, 407, text='format:', anchor=self.anchor, font=self.body_font, fill=self.txt_color)
 
         file_formats = ['png', 'jpeg', 'svg', 'pdf']
-        self.format_choice = self.create_combox(file_formats, 8, 570, 378)
+        self.format_choice = self.create_combox(file_formats, 8, 570, 405)
 
         self.done_button = self.create_button('Done', self.plot_circular_graph, 370, 460)
     
@@ -833,6 +837,33 @@ class CircularGraphGUI:
             self.threshold_entry_1.place_forget()
             self.threshold_label_2.place_forget()
             self.threshold_entry_2.place_forget()
+
+    
+    def get_threshold(self):
+        method = self.threshold_choice.get()
+        params = None
+
+        if method == 'Weighted Average':
+            params =  {
+                'method': 'weighted_average',
+                'value': float(self.threshold_entry_1.get())
+            }
+
+        elif method == 'Positive Negative Val':
+            params = {
+                'method': 'positive_negative_value',
+                'positive_value': float(self.threshold_entry_1.get()),
+                'negative_value': float(self.threshold_entry_2.get())
+            }
+
+        elif method == 'Positive Negative Percentile':
+            params = {
+                'method': 'positive_negative_percentile_value',
+                'value_positive': float(self.threshold_entry_1.get()),
+                'value_negative': float(self.threshold_entry_2.get())
+            }
+        
+        return params
             
 
     def plot_circular_graph(self):
@@ -843,6 +874,7 @@ class CircularGraphGUI:
             'show_second_labels': self.get_second_label_presentations(self.color_var.get(), self.grouping_var.get()),
             'color_palette': self.color_palette_path,
             'edge_color_method': self.edge_color_choice.get(),
+            'radius': float(self.radius.get()),
             'output_file': f'{self.filename_entry.get().strip()}.{self.format_choice.get()}' if self.filename_entry.get().strip() is not None else f'{defaults.SAVE_NAME}.{self.format_choice.get()}',
             'output_format': self.format_choice.get()
         }
@@ -858,9 +890,14 @@ class CircularGraphGUI:
                     color_palette=self.attributes['color_palette']
                     )
 
+        threshold_params = self.get_threshold()
+        if threshold_params:
+            cg_object.apply_threshold(**threshold_params)
+
         cg_object.plot(label=self.attributes['show_first_labels'],
                        sec_label=self.attributes['show_second_labels'],
-                       edge_color_method=self.attributes['edge_color_method']
+                       edge_color_method=self.attributes['edge_color_method'],
+                       radius=self.attributes['radius']
         )
 
         cg_object.show()
