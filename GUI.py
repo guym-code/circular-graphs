@@ -92,6 +92,7 @@ class CircularGraphGUI:
         # Initialize optional color palette path, default is None
         self.color_palette_path = None
 
+        # Add widgets to the window
         self.create_widgets()
 
         # Open GUI
@@ -169,7 +170,7 @@ class CircularGraphGUI:
 
         self.edges_rb.place(x=397, y=145)
 
-        # Create Options and entry for atlas
+        # Create atlas Options and entry
         self.canvas.create_text(
             20, 
             170, 
@@ -209,7 +210,7 @@ class CircularGraphGUI:
         choice_change_args_first
     )
 
-        # Create entry for secondary label
+        # Create secondary label options and entry
         self.canvas.create_text(
             20, 
             195, 
@@ -506,6 +507,7 @@ class CircularGraphGUI:
         file_formats = ['png', 'jpeg', 'svg', 'pdf']
         self.format_choice = self.create_combox(file_formats, 8, 570, 405)
 
+        # Create done button to create and save the circular graph
         self.done_button = self.create_button(
             'Save Figure', 
             self.plot_circular_graph, 
@@ -719,8 +721,10 @@ class CircularGraphGUI:
             - tk.Button
                 The browse button associated with the entry widget.
         """
+        # Create combobox
         choice_box = self.create_combox(options, choice_width, x, y)
 
+        # Create other entry and browse buttons objects
         entry = tk.Entry(self.root, width=entry_width)
         entry.insert(0, other_entry_txt)
         entry.config(fg='gray')
@@ -729,9 +733,10 @@ class CircularGraphGUI:
             text=self.browse_button_txt, 
             command=lambda: browse_func(entry)
         )
+
+        # Bind objects to actions
         entry.bind('<FocusIn>', lambda event: clear(event, entry))
         entry.bind('<FocusOut>', lambda event: restore(event, entry))
-
         choice_box.bind(
             '<<ComboboxSelected>>', 
             lambda event: label_change(
@@ -821,10 +826,12 @@ class CircularGraphGUI:
             button.place(x=x_button, y=y_button)
         
         else:
+            # Default option was chosen, no other entry needed
             entry.place_forget()
             button.place_forget()
         
         if level == 'second':
+            # Make sure user entered the inputs as asked
             self.check_secondary_input()
       
 
@@ -946,6 +953,7 @@ class CircularGraphGUI:
         -------
         None
         """
+        # Create window
         window = tk.Toplevel(self.root)
         window.title(title)
         window.geometry(size)
@@ -955,6 +963,7 @@ class CircularGraphGUI:
         padx_body = 20
         pady = (10, 0)
 
+        # Add explanation for label options
         for i in range(labels_num):
             tk.Label(
                 window,
@@ -989,11 +998,13 @@ class CircularGraphGUI:
         -------
         None
         """
+        # Create window
         self.color_window = tk.Toplevel(self.root)
         self.color_window.title('Color palette')
         self.color_window.geometry('480x100')
         self.color_window.configure(bg=self.side_color)
 
+        # Add path objects
         tk.Label(
             self.color_window,
             text='Path to color palette CSV:',
@@ -1018,6 +1029,7 @@ class CircularGraphGUI:
             pady=2
         )
 
+        # Add browse button
         tk.Button(
             self.color_window,
             text=self.browse_button_txt,
@@ -1030,6 +1042,7 @@ class CircularGraphGUI:
             pady=2
         )
 
+        # Add a button to access example file
         tk.Button(
             self.color_window,
             text='Example File',
@@ -1042,6 +1055,7 @@ class CircularGraphGUI:
             pady=2
         )
 
+        # Add done button
         tk.Button(
             self.color_window,
             text='Done',
@@ -1110,14 +1124,6 @@ class CircularGraphGUI:
             entry.delete(0, tk.END)
             entry.insert(0, filename)
 
-
-    def get_atlas(self, atlas_getter, other_getter):
-        if atlas_getter not in ('Other', 'Choose an atlas', 'Choose a file'):
-            return atlas_getter
-        elif atlas_getter == 'Other':
-            return other_getter
-        
-        return None
     
     def get_atlas(
         self,
