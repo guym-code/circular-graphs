@@ -247,7 +247,7 @@ Depending on the selected method, users can define one or two threshold values.
 - Export figures in **PNG**, **JPEG**, **SVG**, or **PDF** formats.
 
 ## GUI
-<img width="1152" height="826" alt="image" src="https://github.com/user-attachments/assets/aa782c10-26a1-45d9-aad4-ef4fc7afcd6b" />
+<img width="1151" height="825" alt="image" src="https://github.com/user-attachments/assets/26a9c77f-4339-4888-968c-6198776b464f" />
 
 
 
@@ -265,7 +265,11 @@ Depending on the selected method, users can define one or two threshold values.
 
 # Authors
 
-*To be completed.*
+Amit Keinan
+Guy Malka
+Yoav Melamed
+Gilad Shilo
+Tom Zemer
 
 # License
 
