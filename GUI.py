@@ -817,6 +817,8 @@ class CircularGraphGUI:
 
         if method == 'Weighted Average':
             self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Weight [0,1]:', 440, 352, 510, 352)
+            self.threshold_label_2.place_forget()
+            self.threshold_entry_2.place_forget()
 
         elif method == 'Positive Negative Val':
             self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,1]:', 440, 352, 520, 352)
