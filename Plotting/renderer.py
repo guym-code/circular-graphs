@@ -35,7 +35,7 @@ def create_figure(figsize: Tuple[float, float] = defaults.FIGSIZE) -> Tuple[Figu
     Returns:
         (fig, ax) tuple of a new matplotlib Figure and its single Axes.
     """
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax = plt.subplots(figsize=figsize, layout="constrained")
     fig.patch.set_facecolor("white")
     ax.set_facecolor("none")
     return fig, ax
@@ -433,15 +433,14 @@ def draw_group_legend(
         return
     handles = [Patch(color=color, label=label) for label, color in seen.items()]
     legend_kwargs = dict(
-        loc="lower right",
-        bbox_to_anchor=(1.3, -0.05),
+        loc="outside lower right",
         fontsize=size,
         frameon=False,
         labelcolor="black",
     )
     if font:
         legend_kwargs["prop"] = {"family": font, "size": size}
-    ax.legend(handles=handles, **legend_kwargs)
+    ax.get_figure().legend(handles=handles, **legend_kwargs)
 
 
 def finalize_axes(ax: Axes, extent: float = defaults.PLOT_EXTENT) -> None:
