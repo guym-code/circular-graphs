@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 from typing import Optional, Union
 
 import numpy as np
@@ -21,15 +22,57 @@ VALID_SEC_LABEL_MODES = ("Color", "Bracket", "False")
 
 
 class CircularGraph:
+    """Container for connectivity data used to create a circular graph.
+
+    The class loads connectivity data from either a square matrix or an
+    edge-list representation, loads optional ROI labels, secondary labels,
+    and color palettes, and validates that all inputs are internally
+    consistent before plotting.
+
+    Attributes:
+        mat: Symmetric connectivity matrix, shape (n_nodes, n_nodes).
+        labels: Primary ROI labels, or None.
+        secondary_labels: Optional group/network labels, or None.
+        color_palette: Optional dictionary mapping secondary-label names
+            to hexadecimal colors.
+        mask: Boolean matrix, shape (n_nodes, n_nodes), initialized to
+            True for all node pairs.
+    """
+
     def __init__(
         self,
-        mat_path,
-        mat_type="matrix",
-        labels=None,
-        secondary_labels=None,
-        color_palette=None,
-        subject_idx=0
-    ):
+        mat_path: str | Path | np.ndarray,
+        mat_type: str = "matrix",
+        labels: None | str | Path | list | tuple | np.ndarray = None,
+        secondary_labels: None | str | Path | list | tuple | np.ndarray = None,
+        color_palette: None | dict[str, str] | str | Path = None,
+        subject_idx: int = 0,
+    ) -> None:
+        """Initialize a CircularGraph object.
+
+        Args:
+            mat_path: Connectivity input. For ``mat_type="matrix"``, this
+                may be a NumPy array or a path to a matrix file. For
+                ``mat_type="edge_list"``, this may be an edge-value array
+                or a path to an edge-list file.
+            mat_type: Type of connectivity input. Must be either
+                ``"matrix"`` or ``"edge_list"``.
+            labels: Optional primary ROI labels. May be None, a predefined
+                atlas name, a list/tuple/array of labels, or a supported
+                label-file path.
+            secondary_labels: Optional secondary labels used to group ROIs,
+                such as networks, hemispheres, or anatomical regions.
+            color_palette: Optional mapping from secondary-label names to
+                hexadecimal color values, or a path to a palette file.
+            subject_idx: Subject row to use when loading an edge-list file
+                containing multiple subjects.
+
+        Raises:
+            ValueError: If ``mat_type`` is unsupported or if any loaded
+                input is inconsistent with the connectivity matrix.
+            TypeError: If matrix, labels, secondary labels, or palette
+                values have invalid types.
+        """
         if mat_type == "edge_list":
             edge_index, edge_values = load_edge_list(mat_path)
             self.mat = edge_list_to_matrix(edge_values, edge_index, subject_idx)
@@ -46,7 +89,7 @@ class CircularGraph:
         self.mask = np.ones(self.mat.shape, dtype=bool)
 
         self._validate()
-
+        
     def plot(
         self,
         label: bool = defaults.LABEL,
@@ -221,14 +264,14 @@ class CircularGraph:
             bbox_inches="tight",
         )
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validate that the graph data are internally consistent."""
         self._validate_matrix()
         self._validate_labels()
         self._validate_secondary_labels()
         self._validate_color_palette()
 
-    def _validate_matrix(self):
+    def _validate_matrix(self) -> None:
         """Validate matrix shape, type, numeric content, and symmetry."""
         if not isinstance(self.mat, np.ndarray):
             raise TypeError("mat must be a NumPy array.")
@@ -252,7 +295,7 @@ class CircularGraph:
         if not np.allclose(self.mat, self.mat.T):
             raise ValueError("Connectivity matrix must be symmetric.")
 
-    def _validate_labels(self):
+    def _validate_labels(self) -> None:
         """Validate primary ROI labels."""
         if self.labels is None:
             return
@@ -268,7 +311,7 @@ class CircularGraph:
         if not all(isinstance(label, str) for label in self.labels):
             raise TypeError("All labels must be strings.")
 
-    def _validate_secondary_labels(self):
+    def _validate_secondary_labels(self) -> None:
         """Validate secondary ROI labels."""
         if self.secondary_labels is None:
             return
@@ -288,7 +331,7 @@ class CircularGraph:
         ):
             raise TypeError("All secondary labels must be strings.")
 
-    def _validate_color_palette(self):
+    def _validate_color_palette(self) -> None:
         """Validate color palette and its match to secondary labels."""
         if self.color_palette is None:
             return
@@ -318,7 +361,7 @@ class CircularGraph:
 
         self._validate_palette_matches_secondary_labels()
 
-    def _validate_color_format(self):
+    def _validate_color_format(self) -> None:
         """Validate that all colors are '#RRGGBB' hex strings."""
         invalid_colors = [
             f"{region}: '{color}'"
@@ -334,7 +377,7 @@ class CircularGraph:
                 + "\n".join(invalid_colors)
             )
 
-    def _validate_palette_matches_secondary_labels(self):
+    def _validate_palette_matches_secondary_labels(self) -> None:
         """Validate one-to-one match between palette and secondary labels."""
         palette_regions = set(self.color_palette.keys())
         secondary_regions = set(self.secondary_labels)
