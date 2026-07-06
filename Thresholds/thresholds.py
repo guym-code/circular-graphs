@@ -55,7 +55,7 @@ from typing import Dict, Optional, Sequence, Tuple
 import numpy as np
 from scipy.stats import rankdata
 
-from thresholds import defaults_thresholds as defaults
+from Thresholds import defaults_thresholds as defaults
 
 # The three mutually-exclusive ways to decide what's "important enough"
 # to show. weighted_average is "node"-level (it finds hubs); the other
