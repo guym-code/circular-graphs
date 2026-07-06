@@ -1,7 +1,11 @@
 import numpy as np
 
 
-def edge_list_to_matrix(edge_values, edge_index, subject_idx=0):
+def edge_list_to_matrix(
+    edge_values: np.ndarray,
+    edge_index: list[tuple[int, int]],
+    subject_idx: int = 0,
+) -> np.ndarray:
     """
     Convert an edge-list representation to a symmetric connectivity matrix.
 
