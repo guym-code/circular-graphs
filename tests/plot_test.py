@@ -16,6 +16,8 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from CircularGraph import CircularGraph
+from Plotting import layout as plotting_layout
+from Plotting import renderer as plotting_renderer
 
 
 # ---------------------------------------------------------------------------
@@ -141,6 +143,69 @@ class TestPlotHemiFlip:
             color_palette={"A": "#111111", "B": "#222222"},
         )
         assert isinstance(g.plot(hemi_flip=True, sec_label="Bracket"), Figure)
+
+    @staticmethod
+    def _distinct_weight_matrix(n):
+        """Symmetric n x n matrix where every ROI pair gets a unique,
+        traceable weight (i, j) -> (10*i + j) / 100, scaled to stay
+        within the [-1, 1] range the loader enforces."""
+        mat = np.zeros((n, n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                v = (10 * i + j) / 100.0
+                mat[i, j] = v
+                mat[j, i] = v
+        return mat
+
+    def test_edges_follow_their_rois_after_flip(self, monkeypatch):
+        # Every drawn edge must still carry the *original* weight between
+        # whichever two ROIs actually ended up at those two draw
+        # positions -- hemi_flip must never scramble which edge value
+        # belongs to which pair of ROIs, only where they're drawn.
+        n = 6
+        mat = self._distinct_weight_matrix(n)
+        labels = [f"ROI{i}" for i in range(n)]
+        g = CircularGraph(mat_path=mat, mat_type="matrix", labels=labels)
+
+        captured = {}
+
+        def _spy_draw_edges(ax, positions, edges, *args, **kwargs):
+            captured["edges"] = edges
+
+        monkeypatch.setattr(plotting_renderer, "draw_edges", _spy_draw_edges)
+
+        g.plot(hemi_flip=True)
+
+        order = plotting_layout.compute_hemi_flip_order(n)
+        assert captured.get("edges"), "expected draw_edges to be called with edges"
+        for i, j, weight, _color_a, _color_b in captured["edges"]:
+            orig_i, orig_j = order[i], order[j]
+            expected = mat[orig_i, orig_j]
+            assert weight == pytest.approx(expected), (
+                f"edge drawn at positions ({i}, {j}) -- ROI{orig_i}/ROI{orig_j} "
+                f"-- has weight {weight}, expected {expected}"
+            )
+
+    def test_edges_match_original_indices_without_flip(self, monkeypatch):
+        # Baseline: with hemi_flip disabled, draw position == original
+        # ROI index, so every edge weight should match the untouched
+        # matrix entry at the same (i, j).
+        n = 6
+        mat = self._distinct_weight_matrix(n)
+        g = CircularGraph(mat_path=mat, mat_type="matrix")
+
+        captured = {}
+
+        def _spy_draw_edges(ax, positions, edges, *args, **kwargs):
+            captured["edges"] = edges
+
+        monkeypatch.setattr(plotting_renderer, "draw_edges", _spy_draw_edges)
+
+        g.plot(hemi_flip=False)
+
+        assert captured.get("edges"), "expected draw_edges to be called with edges"
+        for i, j, weight, _color_a, _color_b in captured["edges"]:
+            assert weight == pytest.approx(mat[i, j])
 
 
 class TestPlotRadius:
