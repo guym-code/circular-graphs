@@ -58,7 +58,7 @@ class CircularGraphGUI:
     def create_widgets(self):
         """Create all GUI widgets."""
         # Create Gui Title
-        self.canvas.create_text(385, 45, text='Circular Graph Plotter', font=self.title_font, fill=self.txt_color)
+        self.canvas.create_text(385, 45, text='NeuroCircle', font=self.title_font, fill=self.txt_color)
 
         # Create Data Subtitle
         self.canvas.create_text(20, 80, text='Data', anchor=self.anchor, font=self.subtitle_font, fill=self.txt_color)
