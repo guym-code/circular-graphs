@@ -238,6 +238,9 @@ class CircularGraph:
                 edges.append((i, j, weight, color_a, color_b))
 
         fig, ax = renderer.create_figure(figsize=figsize)
+        renderer.finalize_axes(ax, extent=extent)
+        fig.canvas.draw()
+
         renderer.draw_edges(ax, positions, edges)
         renderer.draw_nodes(ax, positions, node_colors)
 
@@ -263,8 +266,6 @@ class CircularGraph:
             renderer.draw_group_legend(
                 ax, node_colors, groups, font=sec_label_font, size=sec_label_size
             )
-
-        renderer.finalize_axes(ax, extent=extent)
 
         self._fig = fig
         self._ax = ax
