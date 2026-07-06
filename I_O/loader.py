@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -28,7 +29,14 @@ SECONDARY_LABELS_DICT = {
     ),
 }
 
-def load_matrix(matrix, variable=None):
+PathLike = Union[str, Path]
+ArrayLike = Union[list, tuple, np.ndarray]
+
+
+def load_matrix(
+    matrix: Union[PathLike, np.ndarray],
+    variable: Optional[str] = None,
+) -> np.ndarray:
     """
     Load a connectivity matrix.
 
@@ -97,7 +105,10 @@ def load_matrix(matrix, variable=None):
     return mat
 
 
-def _load_mat_matrix(path, variable=None):
+def _load_mat_matrix(
+    path: str | Path,
+    variable: str | None = None,
+) -> np.ndarray:
     """Load a 2D matrix from a MATLAB .mat file."""
 
     data = loadmat(path)
@@ -134,7 +145,9 @@ def _load_mat_matrix(path, variable=None):
     return next(iter(matrices.values()))
 
 
-def load_labels(obj):
+def load_labels(
+    obj: None | str | Path | list | tuple | np.ndarray,
+) -> list[str] | None:
     """
     Load ROI labels.
 
@@ -198,7 +211,9 @@ def load_labels(obj):
     )
 
 
-def load_secondary_labels(obj):
+def load_secondary_labels(
+    obj: None | str | Path | list | tuple | np.ndarray,
+) -> list[str] | None:
     """
     Load secondary labels describing each ROI.
 
@@ -238,7 +253,10 @@ def load_secondary_labels(obj):
     return load_labels(obj)
 
 
-def _load_labels_table(path, suffix):
+def _load_labels_table(
+    path: str | Path,
+    suffix: str,
+) -> list[str]:
     """Load labels from the final column of a table-like file."""
 
     if suffix == ".csv":
@@ -255,7 +273,9 @@ def _load_labels_table(path, suffix):
     labels = df.iloc[:, -1]
     return labels.astype(str).tolist()
 
-def load_color_palette(obj):
+def load_color_palette(
+    obj: None | dict | str | Path,
+) -> dict[str, str] | None:
     """
     Load a color palette.
 
@@ -314,7 +334,10 @@ def load_color_palette(obj):
     return dict(zip(df.iloc[:, 0].astype(str), df.iloc[:, 1].astype(str)))
 
 
-def _load_palette_table(path, suffix):
+def _load_palette_table(
+    path: str | Path,
+    suffix: str,
+) -> pd.DataFrame:
     """Load a color palette table from disk."""
 
     if suffix == ".csv":
