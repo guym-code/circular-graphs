@@ -1,0 +1,8 @@
+[tool.pytest.ini_options]
+# Makes the repo root importable regardless of the directory pytest is
+# invoked from, so test modules can do `from Thresholds import thresholds`
+# the same way scripts run from the repo root already can -- without this,
+# pytest's default import mode only adds each test file's own directory
+# (tests/) to sys.path, not the repo root.
+pythonpath = ["."]
+testpaths = ["tests"]
