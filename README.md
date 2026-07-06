@@ -1,5 +1,6 @@
 # NeuroCircles
-![test_graph.png](test_graph.png)
+<img width="720" height="720" alt="circular_graph" src="https://github.com/user-attachments/assets/27b7a785-a6d0-43e2-b396-06862ef69885" />
+
 
 ## Shared Documentation
 
