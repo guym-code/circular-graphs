@@ -15,10 +15,12 @@ from I_O.loader import (
     load_secondary_labels,
 )
 
+from Thresholds import thresholds
+
 from Plotting import colors, defaults, layout, renderer
 from Plotting.colors import ColorInput, PositiveNegativeInput
 
-VALID_SEC_LABEL_MODES = ("Color", "Bracket", "ColorBracket", "False")
+VALID_SEC_LABEL_MODES = ("Color", "Bracket", "False")
 
 
 class CircularGraph:
@@ -89,7 +91,55 @@ class CircularGraph:
         self.mask = np.ones(self.mat.shape, dtype=bool)
 
         self._validate()
-        
+
+    def apply_threshold(
+        self,
+        method: Optional[str] = None,
+        **params,
+    ) -> np.ndarray:
+        """Compute and store self.mask for one threshold method at a time.
+
+        This is the CircularGraph-bound counterpart to
+        Thresholds.thresholds.apply_threshold(mat, method, **params) --
+        same method names and params, just applied to self.mat and stored
+        on self.mask instead of returned as a standalone ThresholdResult.
+        Calling it again with a different method fully replaces the
+        previous mask; it never combines two methods.
+
+        Args:
+            method: One of Thresholds.thresholds.VALID_THRESHOLD_METHODS
+                ("weighted_average", "positive_negative_value",
+                "positive_negative_percentile_value"), or None (the
+                default) to clear thresholding and keep every edge.
+            **params: Keyword parameters for the chosen method's
+                constructor -- see
+                Thresholds.thresholds.THRESHOLD_PARAM_SCHEMAS[method] for
+                which names each method expects (e.g. value= for
+                weighted_average, positive_value=/negative_value= for
+                positive_negative_value).
+
+        Returns:
+            The new self.mask (n x n boolean array), for convenience.
+
+        Raises:
+            ValueError: If method is not None and not a recognized
+                method, or if params doesn't match what that method's
+                constructor accepts.
+        """
+        if method is None:
+            self.mask = np.ones(self.mat.shape, dtype=bool)
+            return self.mask
+
+        if method not in thresholds.VALID_THRESHOLD_METHODS:
+            raise ValueError(
+                f"Unknown threshold method: {method!r}, expected None or one "
+                f"of {thresholds.VALID_THRESHOLD_METHODS}"
+            )
+
+        result = thresholds.apply_threshold(self.mat, method, **params)
+        self.mask = result.edge_mask
+        return self.mask
+
     def plot(
         self,
         label: bool = defaults.LABEL,
@@ -111,13 +161,12 @@ class CircularGraph:
             label_font: Font family for node labels, or None for default (taken from Matplotlib).
             label_size: Font size (points) for node labels.
             sec_label: Determine the grouping method for the secondary label.
-                "Color": colors nodes by secondary label and shows a legend
+                "Color": shows a legend mapping secondary label to color.
                 "Bracket": draws a bracket + curved label over each group.
-                "ColorBracket": does both (no legend needed).
             sec_label_font: Font family for group labels/legend, or None for default (taken from Matplotlib).
             sec_label_size: Font size (points) for group labels/legend.
             edge_color_method: Determine how to choose edge colors.
-                "Uniform": Same color for all edges (default - Black)
+                "Uniform": Same color for all edges (default - Gray)
                 "PositiveNegative": Color is based on correlation direction (default - Pos=Red, Neg=Blue).
                 "Node": Color is based on the sec_label color of the lower-indexed node out of the two.
                 "Nodes": Color is a gradient between the two node sec_label colors.
@@ -198,7 +247,7 @@ class CircularGraph:
                 ax, angles, node_labels, font=label_font, size=label_size, radius=radius
             )
 
-        if sec_label in ("Bracket", "ColorBracket") and groups:
+        if sec_label == "Bracket" and groups:
             renderer.draw_group_brackets(
                 ax,
                 fig,

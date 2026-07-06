@@ -11,7 +11,7 @@ SEC_LABEL_FONT: str = "DejaVu Sans"
 SEC_LABEL_SIZE: int = 10
 
 EDGE_COLOR_METHOD: str = "Uniform"
-EDGE_COLOR_UNIFORM: str = "#000000"  # Black
+EDGE_COLOR_UNIFORM: str = "#BBBBBB"  # Black
 EDGE_COLOR_POSITIVE: str = "#ff0000"  # Red
 EDGE_COLOR_NEGATIVE: str = "#0000ff"  # Blue
 
@@ -32,7 +32,7 @@ EDGE_CURVATURE: float = 0.0
 EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 2)
 
 # Half-width/height of the (square) plot view, in data units.
-PLOT_EXTENT: float = 1.95
+PLOT_EXTENT: float = 2.5
 
 # Figure size (inches) at NODE_RADIUS/PLOT_EXTENT's default scale.
-FIGSIZE: Tuple[float, float] = (8.0, 8.0)
+FIGSIZE: Tuple[float, float] = (10.0, 10.0)
