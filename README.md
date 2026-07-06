@@ -1,28 +1,260 @@
-# circular-graphs
+# [Project Name]
 
+## Shared Documentation
 
-
-
-## Product Requirements Shared Doc (you can edit) 
 https://docs.google.com/document/d/1a2ZQJTtFH3H57V8p0iG39yFw9OPO3pakU4-5SBe-X4o/edit?usp=sharing
 
-Shared Presentation:
+## Shared Presentation
+
 https://docs.google.com/presentation/d/1jaq3Cncm86KyL8Ov1DoASdZ6KH-fHWH5Bo7b2_KFSHM/edit?usp=sharing
 
+---
 
-Many neuroscience studies visualize structural or functional connectivity using circular representations (connectograms or chord diagrams). Although these figures are common in publications and are frequently featured in high-impact journals, existing software often requires substantial programming expertise, extensive manual customization, or cumbersome configuration before publication-quality figures can be produced.
+# Overview
 
-Our idea is to develop a Python package, accompanied by a simple graphical user interface (GUI), that enables researchers to generate customizable, publication-quality brain connectivity visualizations directly from connectivity matrices or edge lists.
+Circular connectivity graphs (also known as **connectograms** or **chord diagrams**) are widely used in neuroscience to visualize structural and functional connectivity between brain regions. They provide an intuitive representation of complex brain networks and are commonly featured in neuroimaging studies involving functional MRI (fMRI), diffusion MRI, EEG, MEG, and other connectivity analyses.
 
-Potential features include:
+Despite their popularity, generating publication-quality connectograms often requires extensive manual customization or familiarity with specialized visualization libraries. Existing tools often require extensive programming expertise, manual customization, or complex configuration, making them difficult to adapt to different datasets, atlases, and visualization styles. Overall, the process is time-consuming for many researchers.
 
-* Import connectivity matrices or edge lists.
-* Automatic arrangement of brain regions around the circle using a selected atlas or user-provided labels.
-* Grouping of regions by hemisphere, functional network, or any user-defined category.
-* Flexible color schemes (e.g., network-specific colors or separate color maps for positive and negative connections).
-* Edge thickness proportional to connection strength.
-* Thresholding and filtering of weak connections.
-* Interactive adjustment of visualization parameters through the GUI.
-* Export of publication-ready figures in high-resolution formats (SVG, PDF, PNG).
+This project aims to simplify the creation of circular connectivity graphs by providing an intuitive Python application with an interactive graphical user interface. Users can import connectivity matrices or edge lists, customize the appearance of nodes and edges, organize regions using atlas-based or custom labels, and export publication-ready figures with minimal effort.
 
-The primary goal is to create an intuitive tool that substantially simplifies the generation of aesthetically pleasing, publication-quality connectograms while requiring minimal manual editing. Such a package could benefit many neuroscience laboratories working with structural or functional connectivity data. For the hackathon, we will either generate synthetic datasets or collaborate with colleagues who can provide suitable connectivity data for development and testing.
+# Features
+
+- Interactive graphical interface for intuitive creation of customizable connectograms.
+- Supports connectivity matrices and edge lists.
+- Supports built-in brain atlases as well as user-defined labels and annotations.
+- Flexible customization of node labels, colors, edge appearance, and layout.
+- Generates publication-quality circular connectivity visualizations suitable for scientific publications.
+
+# Supported Atlases
+
+- Multi-Modal Parcellation (MMP)
+- Schaefer 100
+- Schaefer 400
+- Schaefer 600
+- Schaefer 1000
+- User-defined atlases
+
+# Getting Started
+
+*To be completed.*
+
+# Usage
+
+1. Launch the application.
+2. Load connectivity data.
+3. Select a built-in atlas or import user-defined labels.
+4. Optionally add secondary labels.
+5. Customize visualization settings.
+6. Generate and export the connectogram.
+
+# Input Files
+
+The application accepts several optional input files for creating and customizing the connectogram.
+
+## Connectivity Data
+
+The connectivity data is the only required input. It can be supplied either as a **connectivity matrix** or as an **edge list**.
+
+### Supported Formats
+
+Connectivity data may be provided as:
+
+- NumPy array
+- CSV (`.csv`)
+- Excel (`.xls`, `.xlsx`)
+- NumPy binary (`.npy`)
+- MATLAB (`.mat`)
+
+---
+
+### Connectivity Matrix
+
+A connectivity matrix must be a square matrix of shape **N × N**, where **N** is the number of regions of interest (ROIs).
+
+Each matrix element represents the connection strength between two regions.
+
+Example:
+
+|     | ROI 1 | ROI 2 | ROI 3 |
+|-----|-------|-------|-------|
+| ROI 1 | 1.0 | 0.42 | -0.18 |
+| ROI 2 | 0.42 | 1.0 | 0.25 |
+| ROI 3 | -0.18 | 0.25 | 1.0 |
+
+The matrix is assumed to be symmetric. Diagonal values are ignored during visualization.
+
+---
+
+### Edge List
+
+Connectivity may alternatively be supplied as an edge list.
+
+Each row represents one subject (or one connectivity matrix), while each column corresponds to one connection between two ROIs.
+
+The first column is assumed to contain subject identifiers (or any non-edge identifier) and is ignored during loading.
+
+Two edge-list formats are supported.
+
+#### 1. Edge names included
+
+The first row contains ROI pairs:
+
+| Subject | (1,2) | (1,3) | (2,3) | ... |
+|---------|------:|------:|------:|----:|
+| 001 | 0.42 | -0.18 | 0.25 | ... |
+
+ROI pairs may be written in any of the following formats:
+
+- `(1,2)`
+- `1,2`
+- `1-2`
+- `1_2`
+
+#### 2. Edge names omitted
+
+If edge names are omitted, the software automatically infers the connectivity structure from the number of columns.
+
+The following layouts are recognized automatically:
+
+- **Upper triangular matrix (without the diagonal)** containing `N(N−1)/2` edge columns.
+- **Complete symmetric matrix** containing `N²` edge columns.
+
+No additional configuration is required.
+
+---
+
+### Symmetric Edge Lists
+
+The edge list may contain either
+
+- only one entry for each connection (e.g. `(1,2)` but not `(2,1)`), or
+- both `(i,j)` and `(j,i)` entries.
+
+When both directions are provided, their values must be identical. Otherwise, an error is raised to prevent inconsistent connectivity matrices.
+
+Diagonal entries such as `(1,1)` are optional and are ignored during visualization.
+
+---
+
+## ROI Labels
+
+ROI labels define the names displayed around the connectogram.
+
+Labels may be supplied as:
+
+- a built-in atlas
+- a Python list, tuple, or NumPy array
+- CSV (`.csv`)
+- TSV (`.tsv`)
+- TXT (`.txt`)
+- Excel (`.xls`, `.xlsx`)
+- NumPy (`.npy`)
+
+For table-based files, the **last column** is interpreted as the label column.
+
+Labels must appear in the same order as the ROIs in the connectivity data.
+
+---
+
+## Secondary Labels
+
+Secondary labels are optional annotations used to group ROIs into higher-level categories such as:
+
+- Functional networks
+- Hemispheres
+- Anatomical regions
+- User-defined groups
+
+Secondary labels support the same input formats as ROI labels and must follow the same ROI ordering.
+
+Built-in secondary labels are available for the included Schaefer atlases.
+
+---
+
+## Color Palette
+
+An optional color palette can be supplied to define colors for secondary-label groups.
+
+Supported formats:
+
+- CSV (`.csv`)
+- TSV (`.tsv`)
+- TXT (`.txt`)
+- Excel (`.xls`, `.xlsx`)
+
+The file must contain at least two columns:
+
+| Group | Color |
+|-------|-------|
+| Visual | `#4F81BD` |
+| Default | `#C0504D` |
+
+The first row is assumed to contain column headers and is ignored.
+
+Colors should be specified using hexadecimal RGB notation (e.g. `#A450AE`).
+
+# Customization
+
+The software allows users to customize the appearance and organization of the connectogram.
+
+## Node Labels
+
+- Display or hide primary ROI labels.
+- Choose predefined atlas labels or custom label files.
+
+## Secondary Labels
+
+Users can choose how secondary labels are presented:
+
+- No secondary labels
+- Node coloring
+- Group brackets
+- Combined node coloring and group brackets
+
+A custom color palette can also be provided for secondary-label groups.
+
+## Edge Appearance
+
+Choose one of four edge-coloring methods:
+
+- **Uniform** – all edges share the same color.
+- **Positive/Negative** – positive and negative edges are colored differently.
+- **Node** – each edge is colored according to one of its connected nodes.
+- **Nodes** – edges are displayed as a gradient between the colors of the connected nodes.
+
+## Thresholding
+
+Several thresholding methods are available to simplify network visualization:
+
+- **No thresholding** – display all edges.
+- **Weighted average threshold** – display only edges connected to nodes whose average absolute edge weight is greater than the specified threshold (exclusive).
+- **Positive/negative value threshold** – display only edges whose weight is greater than the specified positive threshold or less than the specified negative threshold (exclusive).
+- **Positive/negative percentile threshold** – display only edges whose weights fall within the selected percentile of the positive or negative edge-weight distribution.
+
+Depending on the selected method, users can define one or two threshold values.
+
+## Output
+
+- Specify the output filename.
+- Export figures in **PNG**, **JPEG**, **SVG**, or **PDF** formats.
+
+# Examples
+
+*To be completed.*
+
+# Repository Structure
+
+*To be completed.*
+
+# Future Work
+
+*To be completed.*
+
+# Authors
+
+*To be completed.*
+
+# License
+
+*To be completed.*

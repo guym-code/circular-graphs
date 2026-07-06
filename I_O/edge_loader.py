@@ -111,10 +111,20 @@ def load_edge_list_matrix_csv(path):
     if suffix == ".csv":
         df = pd.read_csv(path, header=0, encoding="utf-8-sig", low_memory=False)
 
-        edge_index = [parse_edge(col) for col in df.columns[1:]]
-        edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+        try:
+            edge_index = [parse_edge(col) for col in df.columns[1:]]
+            edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+            return edge_index, edge_values
 
-        return edge_index, edge_values
+        except ValueError:
+            df = pd.read_csv(path, header=None, encoding="utf-8-sig", low_memory=False)
+
+            n_edge_cols = df.shape[1] - 1
+
+            edge_index = infer_edge_index_from_n_cols(n_edge_cols)
+            edge_values = df.iloc[:, 1:].astype(float).to_numpy()
+
+            return edge_index, edge_values
 
     elif suffix in (".xls", ".xlsx"):
         df = pd.read_excel(path, header=None)
@@ -147,3 +157,45 @@ def load_edge_list_matrix_csv(path):
     data = df.iloc[1:, valid_cols].to_numpy(dtype=float)
 
     return edge_index, data
+
+
+def infer_edge_index_from_n_cols(n_edge_cols):
+    """
+    Infer edge indices from the number of edge columns.
+
+    Supports either:
+
+    - full square matrix: n_nodes * n_nodes columns
+    - upper triangle without diagonal: n_nodes * (n_nodes - 1) / 2 columns
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        Inferred 1-based ROI edge indices.
+    """
+
+    # Full matrix: n * n
+    n_full = int(n_edge_cols ** 0.5)
+
+    if n_full * n_full == n_edge_cols:
+        return [
+            (i, j)
+            for i in range(1, n_full + 1)
+            for j in range(1, n_full + 1)
+        ]
+
+    # Upper triangle without diagonal: n * (n - 1) / 2
+    n_tri = int((1 + (1 + 8 * n_edge_cols) ** 0.5) / 2)
+
+    if n_tri * (n_tri - 1) // 2 == n_edge_cols:
+        return [
+            (i, j)
+            for i in range(1, n_tri + 1)
+            for j in range(i + 1, n_tri + 1)
+        ]
+
+    raise ValueError(
+        f"Could not infer edge structure from {n_edge_cols} edge columns. "
+        "Expected either n*n columns for a full matrix or "
+        "n*(n-1)/2 columns for a triangular matrix."
+    )
