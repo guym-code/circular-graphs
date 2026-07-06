@@ -66,12 +66,12 @@ class CircularGraphGUI:
 
         # Set the window title and icon
         self.root.title('NeuroCircle')
-        icon = tk.PhotoImage(file='brain_icon.png')
+        icon = tk.PhotoImage(file='icons/brain_icon.png')
         self.root.iconphoto(True, icon)
 
         # Set background image
         self.background_image = Image.open(
-            'circular_graph_bckg.jpeg'
+            'icons/circular_graph_bckg.jpeg'
         ).resize((770, 520))
         self.background_image = ImageTk.PhotoImage(self.background_image)
 
@@ -507,9 +507,9 @@ class CircularGraphGUI:
         self.format_choice = self.create_combox(file_formats, 8, 570, 405)
 
         self.done_button = self.create_button(
-            'Done', 
+            'Save Figure', 
             self.plot_circular_graph, 
-            370, 
+            360, 
             460
         )
     
@@ -1361,6 +1361,8 @@ class CircularGraphGUI:
         -------
         None
         """
+
+        # Get all attributes from GUI
         self.attributes = {
             'mat_path': self.mat_entry.get().strip(),
             'mat_type': self.file_type.get(),
@@ -1371,7 +1373,9 @@ class CircularGraphGUI:
             ),
             'color_palette': self.color_palette_path,
             'edge_color_method': self.edge_color_choice.get(),
-            'radius': float(self.radius.get()),
+            'radius': float(self.radius.get())
+                if self.radius.get()
+                else defaults.NODE_RADIUS,
             'output_file': (
                 f'{self.filename_entry.get().strip()}.{self.format_choice.get()}'
                 if self.filename_entry.get().strip() is not None
@@ -1389,6 +1393,7 @@ class CircularGraphGUI:
             self.other_2_entry.get().strip()
         )
 
+        # Create circular graph object
         cg_object = cg.CircularGraph(
             mat_path=self.attributes['mat_path'],
             mat_type=self.attributes['mat_type'],
@@ -1397,11 +1402,13 @@ class CircularGraphGUI:
             color_palette=self.attributes['color_palette']
         )
 
+        # Threshold according to user input
         threshold_params = self.get_threshold()
 
         if threshold_params:
             cg_object.apply_threshold(**threshold_params)
 
+        # Plot circular graph
         cg_object.plot(
             label=self.attributes['show_first_labels'],
             sec_label=self.attributes['show_second_labels'],
@@ -1409,8 +1416,7 @@ class CircularGraphGUI:
             radius=self.attributes['radius']
         )
 
-        cg_object.show()
-
+        # Save figure
         cg_object.savegraph(
             fname=self.attributes['output_file'],
             format=self.attributes['output_format']
