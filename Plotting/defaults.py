@@ -20,6 +20,8 @@ SAVE_FORMAT: str = "png"
 SAVE_DPI: int = 300
 SAVE_BACKGROUND: str = "#ffffff"  # White
 
+# Used when color palette was not loaded, but there are secondary labels.
+SEC_LABEL_FALLBACK_COLORMAP: str = "Set2"
 # Used only when a graph has no secondary_labels, so edge_color_method 'Node'/'Nodes' still has a color to draw from.
 NODE_FALLBACK_COLORMAP: str = "hsv"
 
@@ -29,7 +31,7 @@ HEMI_FLIP: bool = True
 NODE_RADIUS: float = 2
 # 0.0 = chords bow through the center; 1.0 = straight lines.
 EDGE_CURVATURE: float = 0.0
-EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 2)
+EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 1.7)
 
 # Half-width/height of the (square) plot view, in data units.
 PLOT_EXTENT: float = 2.5

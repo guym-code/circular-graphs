@@ -56,7 +56,8 @@ def resolve_node_colors(
         List of n lowercase hex color strings, indexed by node position.
     """
     color_palette = color_palette or {}
-    fallback_cmap = mpl.colormaps[defaults.NODE_FALLBACK_COLORMAP]
+    fallback_cmap = mpl.colormaps[
+        defaults.SEC_LABEL_FALLBACK_COLORMAP if secondary_labels else defaults.NODE_FALLBACK_COLORMAP]
 
     default_label_colors: Dict[str, str] = {}
     if secondary_labels:

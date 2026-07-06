@@ -182,7 +182,7 @@ class CircularGraphGUI:
 
         return entry
 
-    
+
     def create_button(
         self,
         txt: str,
@@ -799,44 +799,158 @@ class CircularGraphGUI:
     
     
 
-    def get_second_label_presentations(self, color_var, grouping_var):
+    def get_second_label_presentations(
+        self,
+        color_var: bool,
+        grouping_var: bool
+    ) -> str:
+        """Return the selected secondary labeling presentation.
+
+        Determines how secondary labels should be displayed based on the
+        selected GUI options.
+
+        Parameters
+        ----------
+        color_var : bool
+            Indicates whether node coloring is enabled.
+        grouping_var : bool
+            Indicates whether group brackets are enabled.
+
+        Returns
+        -------
+        str
+            The selected secondary labeling presentation. Returns
+            ``'Bracket'`` if grouping is enabled, ``'Color'`` if node
+            coloring is enabled, or the default presentation defined by
+            ``defaults.SEC_LABEL`` otherwise.
+        """
         if grouping_var:
             return 'Bracket'
-        
+
         elif color_var:
             return 'Color'
 
         return defaults.SEC_LABEL
 
 
-    def change_threshold_entry_method(self, label, entry, txt, label_x, label_y, entry_x, entry_y):
+    def change_threshold_entry_method(
+        self,
+        label: tk.Label,
+        entry: tk.Entry,
+        txt: str,
+        label_x: int,
+        label_y: int,
+        entry_x: int,
+        entry_y: int
+    ) -> None:
+        """Update the threshold label and entry widget.
+
+        Configures the label text and background color, then positions the
+        label and its corresponding entry widget according to the specified
+        coordinates.
+
+        Parameters
+        ----------
+        label : tk.Label
+            Label widget associated with the threshold entry.
+        entry : tk.Entry
+            Entry widget for the threshold value.
+        txt : str
+            Text displayed on the label.
+        label_x : int
+            Horizontal position of the label.
+        label_y : int
+            Vertical position of the label.
+        entry_x : int
+            Horizontal position of the entry widget.
+        entry_y : int
+            Vertical position of the entry widget.
+
+        Returns
+        -------
+        None
+        """
         label.config(text=txt, bg=self.side_color)
         label.place(x=label_x, y=label_y)
         entry.place(x=entry_x, y=entry_y)
 
 
-    def update_threshold_entries(self, event):
+    def update_threshold_entries(self, event) -> None:
+        """Update the threshold input fields.
 
+        Displays the appropriate threshold labels and entry widgets
+        according to the selected thresholding method.
+
+        Parameters
+        ----------
+        event
+            Combobox selection event.
+
+        Returns
+        -------
+        None
+        """
         method = self.threshold_choice.get()
 
         if method == 'Weighted Average':
-            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Weight [0,1]:', 440, 352, 510, 352)
+            self.change_threshold_entry_method(
+                self.threshold_label_1,
+                self.threshold_entry_1,
+                'Weight [0,1]:',
+                440,
+                352,
+                510,
+                352
+            )
             self.threshold_label_2.place_forget()
             self.threshold_entry_2.place_forget()
 
         elif method == 'Positive Negative Val':
-            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,1]:', 440, 352, 520, 352)
-            self.change_threshold_entry_method(self.threshold_label_2, self.threshold_entry_2, 'Negative [-1,0]:', 590, 352, 680, 352)
-        
+            self.change_threshold_entry_method(
+                self.threshold_label_1,
+                self.threshold_entry_1,
+                'Positive [0,1]:',
+                440,
+                352,
+                520,
+                352
+            )
+            self.change_threshold_entry_method(
+                self.threshold_label_2,
+                self.threshold_entry_2,
+                'Negative [-1,0]:',
+                590,
+                352,
+                680,
+                352
+            )
+
         elif method == 'Positive Negative Percentile':
-            self.change_threshold_entry_method(self.threshold_label_1, self.threshold_entry_1, 'Positive [0,100]:', 440, 352, 530, 352)
-            self.change_threshold_entry_method(self.threshold_label_2, self.threshold_entry_2, 'Negative [0,100]:', 590, 352, 690, 352)
-        
+            self.change_threshold_entry_method(
+                self.threshold_label_1,
+                self.threshold_entry_1,
+                'Positive [0,100]:',
+                440,
+                352,
+                530,
+                352
+            )
+            self.change_threshold_entry_method(
+                self.threshold_label_2,
+                self.threshold_entry_2,
+                'Negative [0,100]:',
+                590,
+                352,
+                690,
+                352
+            )
+
         else:
             self.threshold_label_1.place_forget()
             self.threshold_entry_1.place_forget()
             self.threshold_label_2.place_forget()
             self.threshold_entry_2.place_forget()
+<<<<<<< HEAD
 
     
     def get_threshold(self):
@@ -865,6 +979,9 @@ class CircularGraphGUI:
         
         return params
             
+=======
+                
+>>>>>>> acd214b6ed582f6651f24fd1b36168068d30624a
 
     def plot_circular_graph(self):
         self.attributes = {
