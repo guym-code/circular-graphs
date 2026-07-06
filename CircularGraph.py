@@ -57,9 +57,10 @@ class CircularGraph:
         edge_color_method: str = defaults.EDGE_COLOR_METHOD,
         edge_color: Optional[Union[ColorInput, PositiveNegativeInput]] = None,
         radius: float = defaults.NODE_RADIUS,
+        hemi_flip: bool = defaults.HEMI_FLIP,
     ) -> Figure:
         """Design and create the circular graph figure.
-        Stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can later be called afterwards.
+        Stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can be called later.
 
         Args:
             label: If True, draw each node's label from self.labels next to it.
@@ -79,6 +80,8 @@ class CircularGraph:
             edge_color: Optional override color(s) for "Uniform" (a single color) or "PositiveNegative"
             (a dict/2-tuple of positive, negative). Ignored for "Node"/"Nodes".
             radius: Radius of the node circle (default - 1.5).
+            hemi_flip: Mirror the second half of nodes for symmetrical organization of
+            the two halves (typically hemispheres) (default - True)
 
         Returns:
             The created matplotlib Figure (also stored as self._fig).
@@ -101,10 +104,25 @@ class CircularGraph:
         )
         color_palette = self.color_palette or {}
 
+        if hemi_flip:
+            order = layout.compute_hemi_flip_order(n)
+            edges_mat = edges_mat[np.ix_(order, order)]
+            labels_dict = {
+                new_i: labels_dict[old_i]
+                for new_i, old_i in enumerate(order)
+                if old_i in labels_dict
+            }
+            secondary_labels = {
+                new_i: secondary_labels[old_i]
+                for new_i, old_i in enumerate(order)
+                if old_i in secondary_labels
+            }
+
         positions = layout.compute_node_positions(n, radius=radius)
         angles = layout.compute_node_angles(n)
+        hard_breaks = [n // 2 - 1] if hemi_flip and n > 0 else None
         groups = (
-            layout.detect_groups(list(range(n)), secondary_labels)
+            layout.detect_groups(list(range(n)), secondary_labels, hard_breaks=hard_breaks)
             if secondary_labels
             else []
         )
