@@ -23,15 +23,16 @@ SAVE_BACKGROUND: str = "#ffffff"  # White
 # Used only when a graph has no secondary_labels, so edge_color_method 'Node'/'Nodes' still has a color to draw from.
 NODE_FALLBACK_COLORMAP: str = "hsv"
 
-NODE_RADIUS: float = 1.5
+# Mirror the second half of nodes (typically left/right hemispheres)
+HEMI_FLIP: bool = True
+
+NODE_RADIUS: float = 2
 # 0.0 = chords bow through the center; 1.0 = straight lines.
 EDGE_CURVATURE: float = 0.0
-EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 4.0)
+EDGE_LINEWIDTH_RANGE: Tuple[float, float] = (0.5, 2)
 
 # Half-width/height of the (square) plot view, in data units.
-# Used both by finalize_axes and by arc-text width calculations, so the two stay consistent regardless of call order.
-PLOT_EXTENT: float = 1.6
+PLOT_EXTENT: float = 1.95
 
-# Figure size (inches) at NODE_RADIUS/PLOT_EXTENT's default scale. figsize and extent both scale with radius
-# (in lockstep with each other), so growing radius yields a bigger figure with more space between nodes.
+# Figure size (inches) at NODE_RADIUS/PLOT_EXTENT's default scale.
 FIGSIZE: Tuple[float, float] = (8.0, 8.0)

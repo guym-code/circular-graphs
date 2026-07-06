@@ -62,7 +62,7 @@ class CircularGraph:
         """Design and create the circular graph figure.
         Stores the result on self (as `_fig`/`_ax`) so that show()/savegraph() can be called later.
 
-        Args:
+        Parameters:
             label: If True, draw each node's label from self.labels next to it.
             label_font: Font family for node labels, or None for default (taken from Matplotlib).
             label_size: Font size (points) for node labels.
@@ -197,7 +197,7 @@ class CircularGraph:
     ) -> None:
         """Save the figure created by a prior call to plot().
 
-        Args:
+        Parameters:
             fname: Output path, as a string or path-like object, including
                 the filename.
             format: Image format (e.g. "png", "svg", "pdf").

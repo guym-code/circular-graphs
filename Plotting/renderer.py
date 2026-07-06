@@ -29,7 +29,7 @@ Group = Tuple[str, int, int]
 def create_figure(figsize: Tuple[float, float] = defaults.FIGSIZE) -> Tuple[Figure, Axes]:
     """Create a blank white-background figure/axes pair to draw into.
 
-    Args:
+    Parameters:
         figsize: (width, height) in inches.
 
     Returns:
@@ -49,7 +49,7 @@ def draw_nodes(
 ) -> None:
     """Draw node markers at their circle positions.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         positions: Node (x, y) positions.
         node_colors: Per-node color, aligned with `positions`.
@@ -94,9 +94,41 @@ def _draw_gradient_edge(
         for t in np.linspace(0.0, 1.0, n_segments)
     ]
     lc = LineCollection(
-        segments, colors=seg_colors, linewidths=lw, capstyle="round", zorder=1
+        segments, colors=seg_colors, linewidths=lw, capstyle="round", zorder=1, alpha=0.85
     )
     ax.add_collection(lc)
+
+
+def _edge_linewidths(
+    edges: Sequence[Edge], linewidth_range: Tuple[float, float]
+) -> List[float]:
+    """Map each edge's |weight| to a linewidth, normalized across `edges`.
+
+    The edge with the smallest |weight| among `edges` gets min_lw and the
+    one with the largest gets max_lw, with everything else linearly
+    interpolated between -- so the mapping always uses the full range,
+    regardless of what absolute scale the weights happen to be on.
+
+    Parameters:
+        edges: Sequence of (i, j, weight, color_a, color_b) -- the edges
+            actually being drawn (i.e. already filtered/thresholded).
+        linewidth_range: (min, max) linewidth in points.
+
+    Returns:
+        List of linewidths, aligned with `edges`. If every edge shares
+        the same |weight| (including the single-edge case), every edge
+        gets max_lw, since there's no spread to distinguish them by.
+    """
+    if not edges:
+        return []
+    min_lw, max_lw = linewidth_range
+    abs_weights = [abs(weight) for _, _, weight, _, _ in edges]
+    lo, hi = min(abs_weights), max(abs_weights)
+    span = hi - lo
+    return [
+        max_lw if span == 0 else min_lw + (max_lw - min_lw) * (w - lo) / span
+        for w in abs_weights
+    ]
 
 
 def draw_edges(
@@ -108,7 +140,7 @@ def draw_edges(
 ) -> None:
     """Draw all edges as curved (Bezier) chords between node positions.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         positions: Node (x, y) positions, indexed by node index.
         edges: Sequence of (i, j, weight, color_a, color_b). When
@@ -116,12 +148,12 @@ def draw_edges(
             otherwise it is drawn as a gradient from color_a to color_b.
         curvature: Bezier curvature, see layout.bezier_control_point.
         linewidth_range: (min, max) linewidth in points; edge linewidth
-            is scaled linearly by |weight| (clamped to 1.0) between them.
+            is normalized across `edges` between them -- see
+            _edge_linewidths.
     """
-    min_lw, max_lw = linewidth_range
-    for i, j, weight, color_a, color_b in edges:
+    linewidths = _edge_linewidths(edges, linewidth_range)
+    for (i, j, weight, color_a, color_b), lw in zip(edges, linewidths):
         p1, p2 = positions[i], positions[j]
-        lw = min_lw + (max_lw - min_lw) * min(abs(weight), 1.0)
         if color_a == color_b:
             patch = PathPatch(
                 _bezier_path(p1, p2, curvature),
@@ -130,6 +162,7 @@ def draw_edges(
                 lw=lw,
                 capstyle="round",
                 zorder=1,
+                alpha=0.85
             )
             ax.add_patch(patch)
         else:
@@ -149,7 +182,7 @@ def draw_labels(
     Labels on the left half of the circle are rotated 180 degrees (and
     right-aligned instead of left-aligned) so all text reads upright.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         angles: Node angles in radians, aligned with `labels`.
         labels: Per-node label text; falsy entries (None/"") are skipped.
@@ -202,7 +235,7 @@ def _char_advance_widths_pt(
     correctly includes whitespace advance width (unlike measuring an
     inked bounding box).
 
-    Args:
+    Parameters:
         text: String whose characters' widths should be measured.
         font: Font family name, or None for the matplotlib default.
         size: Font size in points.
@@ -233,7 +266,7 @@ def _points_per_data_unit(fig: Figure, ax: Axes, extent: float) -> float:
     known from layout alone, without needing a rendered canvas) together
     with the fixed view `extent` set by finalize_axes.
 
-    Args:
+    Parameters:
         fig: Figure the axes belongs to.
         ax: Axes the data units are measured in.
         extent: Half-width of the (square) view set by finalize_axes.
@@ -267,7 +300,7 @@ def draw_arc_text(
     around -- so, as with a clock face, text at the bottom of the circle
     appears upside down rather than being flipped upright.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         fig: Figure `ax` belongs to (used to convert font points to data
             units).
@@ -334,7 +367,7 @@ def draw_group_brackets(
     nodes. The label sits just outside the bracket (at a slightly
     larger radius), curving the same way as the bracket beneath it.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         fig: Figure `ax` belongs to (passed through to draw_arc_text).
         n: Total number of nodes (used to convert group positions to
@@ -381,7 +414,7 @@ def draw_group_legend(
     """Draw a bottom-right legend mapping secondary-label groups to
     colors.
 
-    Args:
+    Parameters:
         ax: Axes to draw into.
         node_colors: Per-node colors, as returned by
             colors.resolve_node_colors; the first node of each group is
@@ -414,7 +447,7 @@ def draw_group_legend(
 def finalize_axes(ax: Axes, extent: float = defaults.PLOT_EXTENT) -> None:
     """Apply final axes styling: equal aspect, fixed extent, no frame.
 
-    Args:
+    Parameters:
         ax: Axes to finalize.
         extent: Half-width/height of the (square) view, in data units.
     """

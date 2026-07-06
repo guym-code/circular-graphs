@@ -15,7 +15,7 @@ def compute_node_angles(n: int) -> List[float]:
     """Compute evenly spaced node angles around a circle.
         Needed for determining node label positions
 
-    Args:
+    Parameters:
         n: Number of nodes to place. Non-positive values yield no angles.
 
     Returns:
@@ -31,7 +31,7 @@ def compute_node_angles(n: int) -> List[float]:
 def polar_to_xy(angle: float, radius: float = 1.0) -> Point:
     """Convert a polar coordinate to Cartesian (x, y).
 
-    Args:
+    Parameters:
         angle: Angle in radians.
         radius: Distance from the origin.
 
@@ -44,7 +44,7 @@ def polar_to_xy(angle: float, radius: float = 1.0) -> Point:
 def compute_node_positions(n: int, radius: float = 1.0) -> List[Point]:
     """Compute node (x, y) positions evenly spaced on a circle.
 
-    Args:
+    Parameters:
         n: Number of nodes to place.
         radius: Circle radius the nodes sit on.
 
@@ -55,32 +55,69 @@ def compute_node_positions(n: int, radius: float = 1.0) -> List[Point]:
     return [polar_to_xy(a, radius) for a in compute_node_angles(n)]
 
 
+def compute_hemi_flip_order(n: int) -> List[int]:
+    """Compute a draw order that mirrors the second half of nodes.
+
+    Assumes node indices [0, n/2) are one hemisphere and [n/2, n) are the
+    other, each internally ordered the same way (e.g. anterior to
+    posterior). Keeps the first half's order as-is and reverses the
+    second half, so node n/2 (the second half's first node) ends up
+    adjacent to node 0 at one end, and node n-1 ends up adjacent to node
+    n/2-1 at the other -- the two hemispheres mirror each other across
+    the split points instead of both winding the same rotational
+    direction.
+
+    For odd n, the first half gets n // 2 nodes and the second half gets
+    the remaining n - n // 2.
+
+    Parameters:
+        n: Total number of nodes.
+
+    Returns:
+        List of n node indices, in draw-position order (position i holds
+        node order[i]) -- suitable as the `order` passed to
+        compute_node_angles-indexed data, or to detect_groups.
+    """
+    half = n // 2
+    return list(range(half)) + list(range(n - 1, half - 1, -1))
+
+
 def detect_groups(
-    order: Sequence[int], secondary_labels: Optional[Dict[int, str]]
+    order: Sequence[int],
+    secondary_labels: Optional[Dict[int, str]],
+    hard_breaks: Optional[Sequence[int]] = None,
 ) -> List[Group]:
     """Find contiguous runs of nodes sharing the same secondary label.
 
     Nodes are assumed to already be index-adjacent within each secondary
     label group (guaranteed by upstream data prep), so this only needs a
     single pass merging consecutive equal labels -- no sorting/reordering.
+    The scan never wraps around, so position 0 and the last position are
+    never merged even if they share a label.
 
-    Args:
+    Parameters:
         order: Node indices in draw order (position i holds node
             order[i]).
         secondary_labels: Mapping of node index to secondary label. Nodes
             missing from the mapping (or mapped to None) belong to no
             group. May be None or empty, meaning no groups at all.
+        hard_breaks: Positions after which a new group is always started,
+            even if the label is unchanged -- e.g. the hemisphere split
+            introduced by compute_hemi_flip_order, where the last node of
+            one hemisphere and the (now-adjacent) last node of the other
+            can coincidentally share a label but must stay two brackets.
 
     Returns:
         List of (label, start_pos, end_pos) tuples, where start_pos and
         end_pos are inclusive positions within `order` (not node indices).
     """
+    breaks = set(hard_breaks) if hard_breaks else set()
     groups: List[Group] = []
     current_label: Optional[str] = None
     start_pos = 0
     for pos, idx in enumerate(order):
         label = secondary_labels.get(idx) if secondary_labels else None
-        if label == current_label and label is not None:
+        if label == current_label and label is not None and (pos - 1) not in breaks:
             continue
         if current_label is not None:
             groups.append((current_label, start_pos, pos - 1))
@@ -94,7 +131,7 @@ def detect_groups(
 def bezier_control_point(p1: Point, p2: Point, curvature: float) -> Point:
     """Compute the control point for a quadratic Bezier chord.
 
-    Args:
+    Parameters:
         p1: Start point of the chord.
         p2: End point of the chord.
         curvature: 0.0 pulls the control point to the origin (center),

@@ -35,34 +35,44 @@ def normalize_hex(color: Optional[ColorInput]) -> Optional[str]:
 def resolve_node_colors(
     n: int,
     secondary_labels: Optional[Dict[int, str]],
-    color_scheme: Optional[Dict[str, ColorInput]],
+    color_palette: Optional[Dict[str, ColorInput]],
 ) -> List[str]:
     """Resolve a display color for every node.
 
-    Colors come from color_scheme[<secondary label>] when the node has a
-    secondary label with a matching entry; otherwise falls back to a
-    colormap keyed by node index. This is the single source of node
-    color used both for sec_label='Color' display and for
-    edge_color_method in ('Node', 'Nodes'), so the two stay consistent
-    regardless of whether the color/legend is actually drawn.
+    Nodes are colored based on these conditions (ordered):
+    color_palette[<secondary label>]: Each secondary label has an explicitly assigned color
+    secondary_labels: Each secondary label is colored by a default palette
+    node index: If there is no predefined color palette and no secondary label for the data - color is per index.
 
-    Args:
+    Parameters:
         n: Number of nodes.
         secondary_labels: Mapping of node index to secondary label, or
             None/empty if there are no secondary labels.
-        color_scheme: Mapping of secondary label to color (e.g.
+        color_palette: Mapping of secondary label to color (e.g.
             {"VisionLeft": "#ffffff", "VisionRight": "#000000"}), or
             None/empty.
 
     Returns:
         List of n lowercase hex color strings, indexed by node position.
     """
-    color_scheme = color_scheme or {}
+    color_palette = color_palette or {}
     fallback_cmap = mpl.colormaps[defaults.NODE_FALLBACK_COLORMAP]
+
+    default_label_colors: Dict[str, str] = {}
+    if secondary_labels:
+        unique_labels = sorted(set(secondary_labels.values()))
+
+        default_label_colors = {
+            label: mcolors.to_hex(fallback_cmap(idx / len(unique_labels)))
+            for idx, label in enumerate(unique_labels)
+        }
+
     colors: List[str] = []
     for i in range(n):
         label = secondary_labels.get(i) if secondary_labels else None
-        color = color_scheme.get(label) if label is not None else None
+        color: Optional[ColorInput] = None
+        if label is not None:
+            color = color_palette.get(label) or default_label_colors.get(label)
         if color is None:
             t = i / max(n - 1, 1)
             color = mcolors.to_hex(fallback_cmap(t))
@@ -77,13 +87,10 @@ def _unpack_positive_negative(
 ) -> Tuple[ColorInput, ColorInput]:
     """Extract (positive, negative) colors from a PositiveNegative input.
 
-    Args:
-        edge_color: Either a dict with "positive"/"negative" keys, or a
-            2-tuple/list of (positive, negative).
-        default_positive: Fallback used when edge_color is a dict missing
-            the "positive" key.
-        default_negative: Fallback used when edge_color is a dict missing
-            the "negative" key.
+    Parameters:
+        edge_color: Either a dict with "positive"/"negative" keys, or a 2-tuple/list of (positive, negative).
+        default_positive: Fallback used when edge_color is a dict missing the "positive" key.
+        default_negative: Fallback used when edge_color is a dict missing the "negative" key.
 
     Returns:
         (positive, negative) color tuple.
@@ -120,7 +127,7 @@ def resolve_edge_color_pair(
     endpoint's node color) color_a and color_b may differ, and the caller
     is expected to render a gradient between them.
 
-    Args:
+    Parameters:
         method: One of "Uniform", "PositiveNegative", "Node", "Nodes".
         edge_color: Override color(s) for "Uniform" (single color) or
             "PositiveNegative" (dict/2-tuple of positive, negative).
@@ -174,7 +181,7 @@ def interpolate_color(
 ) -> Tuple[float, float, float]:
     """Linearly interpolate between two colors in RGB space.
 
-    Args:
+    Parameters:
         color_a: Color at t=0.
         color_b: Color at t=1.
         t: Interpolation factor in [0, 1].
